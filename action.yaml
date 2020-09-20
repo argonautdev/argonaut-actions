@@ -1,10 +1,10 @@
-name: "Hello World"
-description: "Greet someone"
+name: "Argonaut Actions"
+description: "Greetings from Argonaut!"
 inputs:
   who-to-greet: # id of input
     description: "Who to greet"
     required: true
-    default: "World"
+    default: "Jason"
 outputs:
   random-number:
     description: "Random number"
