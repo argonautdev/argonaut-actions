@@ -16,10 +16,10 @@ runs:
       shell: bash
     - run: chmod +x ${{ github.action_path }}/goodbye.sh
       shell: bash
-    # - id: current-time
-    #   shell: bash
-    #   run: |
-    #   echo "::set-output name=time-now::$(echo $time)"
-    #   echo time-now is set to $time
+    - id: current-time
+      run: |
+        echo "::set-output name=time-now::$(echo $time)"
+        echo time-now is set to $time
+      shell: bash
     - run: ${{ github.action_path }}/goodbye.sh
       shell: bash
