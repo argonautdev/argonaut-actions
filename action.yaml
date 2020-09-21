@@ -13,11 +13,11 @@ runs:
   using: "composite"
   steps:
     - run: echo Hello ${{ inputs.who-to-greet }}.
-      shell: bash
+      shell: sh
     - run: chmod +x entrypoint.sh goodbye.sh
-      shell: bash
+      shell: sh
     - id: random-number-generator
       run: echo "::set-output name=random-id::$(echo $RANDOM)"
-      shell: bash
+      shell: sh
     - run: ${{ github.action_path }}/goodbye.sh
-      shell: bash
+      shell: sh
