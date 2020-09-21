@@ -6,9 +6,9 @@ inputs:
     required: true
     default: "Jason"
 outputs:
-  random-number:
-    description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-id }}
+  time-now:
+    description: "Time now"
+    value: ${{ steps.current-time.outputs.time-now }}
 runs:
   using: "composite"
   steps:
@@ -16,8 +16,8 @@ runs:
       shell: bash
     - run: chmod +x ${{ github.action_path }}/entrypoint.sh ${{ github.action_path }}/goodbye.sh
       shell: bash
-    - id: random-number-generator
-      run: echo "::set-output name=random-id::$(echo $RANDOM)"
+    - id: current-time
+      run: echo "::set-output name=time-now::$(echo $time)"
       shell: bash
     - run: ${{ github.action_path }}/goodbye.sh
       shell: bash

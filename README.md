@@ -16,6 +16,6 @@ The time we greeted you.
 
 ## Example usage
 
-uses: argonautdev/argonaut-actions@0.0.3
+uses: argonautdev/argonaut-actions@0.0.1
 with:
 who-to-greet: 'Jason the Argonaut'
