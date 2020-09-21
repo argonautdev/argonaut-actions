@@ -6,5 +6,6 @@ echo "Heave ho $NAME"
 time=$(date)
 echo "::set-output name=time-now::$time"
 
-chmod +x $CWD/goodbye.sh
-sh goodbye.sh
+ls -al
+# chmod +x $CWD/goodbye.sh
+# sh goodbye.sh
