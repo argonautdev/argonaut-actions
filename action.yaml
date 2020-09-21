@@ -1,5 +1,5 @@
 name: "Argonaut Actions"
-description: "Greetings from Argonaut!"
+description: "Greetings from the Argonauts!"
 inputs:
   who-to-greet: # id of input
     description: "Who to greet"
@@ -7,17 +7,19 @@ inputs:
     default: "Jason"
 outputs:
   time-now:
-    description: "Time now"
+    description: "Time Now"
     value: ${{ steps.current-time.outputs.time-now }}
 runs:
   using: "composite"
   steps:
     - run: echo Hello ${{ inputs.who-to-greet }}.
       shell: bash
-    - run: chmod +x ${{ github.action_path }}/entrypoint.sh ${{ github.action_path }}/goodbye.sh
+    - run: chmod +x ${{ github.action_path }}/goodbye.sh
       shell: bash
     - id: current-time
-      run: echo "::set-output name=time-now::$(echo $time)"
       shell: bash
+      run: |
+      echo "::set-output name=time-now::$(echo $time)"
+      echo time-now is set to $time
     - run: ${{ github.action_path }}/goodbye.sh
       shell: bash
