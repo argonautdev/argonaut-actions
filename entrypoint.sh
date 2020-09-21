@@ -2,10 +2,10 @@
 
 
 NAME=$1
-CWD=$2
+CWD=`pwd`
 echo "Entrypoint activated"
-echo "Heave ho $1"
-chmod +x $2/goodbye.sh
+echo "Heave ho $NAME"
+chmod +x $CWD/goodbye.sh
 time=$(date)
 echo "::set-output name=time-now::$time"
 sh goodbye.sh
