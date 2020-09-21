@@ -1,8 +1,11 @@
 #!/bin/sh -l
 
+
+NAME=$1
+CWD=$2
 echo "Entrypoint activated"
 echo "Heave ho $1"
+chmod +x $2/goodbye.sh
 time=$(date)
-echo "time in script is fucked: $time"
 echo "::set-output name=time-now::$time"
-# echo "::set-env name=time::$time"
+sh goodbye.sh

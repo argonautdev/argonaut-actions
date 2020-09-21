@@ -1,5 +1,6 @@
 name: "Argonaut Actions"
 description: "Greetings from the Argonauts!"
+author: Surya Oruganti
 inputs:
   who-to-greet: # id of input
     description: "Who to greet"
@@ -10,15 +11,11 @@ outputs:
     description: "Time Now"
     value: ${{ steps.current-time.outputs.time-now }}
 runs:
-  using: "composite"
-  steps:
-    - run: echo Hello ${{ inputs.who-to-greet }}.
-      shell: bash
-    - run: chmod +x ${{ github.action_path }}/goodbye.sh
-      shell: bash
-    - id: current-time
-      run: |
-        echo time-now is set to $(date) but time is $time
-      shell: bash
-    - run: ${{ github.action_path }}/goodbye.sh
-      shell: bash
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.who-to-greet }}
+    - ${{ github.action_path }}
+branding:
+  icon: "server"
+  color: "purple"
