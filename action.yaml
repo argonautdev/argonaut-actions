@@ -18,8 +18,8 @@ runs:
       shell: bash
     - id: current-time
       run: |
-        echo "::set-output name=time-now::$(date)"
-        echo time-now is set to $(date) but also $time
+        echo time-now is set to $(date) but time is $time
       shell: bash
     - run: ${{ github.action_path }}/goodbye.sh
       shell: bash
+# echo "::set-output name=time-now::$(date)"

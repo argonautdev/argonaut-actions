@@ -3,5 +3,5 @@
 echo "Entrypoint activated"
 echo "Hello $1"
 time=$(date)
-echo "::set-output name=time::$time"
-echo "::set-env name=time::$time"
+echo "::set-output name=time-now::$time"
+# echo "::set-env name=time::$time"
