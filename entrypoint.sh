@@ -59,12 +59,45 @@ ls -al
 ls -al bin/
 # TODO: Incorporate this into argonaut templates https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
 
-# SETUP argonaut
-curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/argonaut" -o argonaut
+# SETUP Go
+# apk add --no-cache gcc 
+apk add musl-dev openssl go 
+# wget -O go.tgz https://golang.org/dl/go1.15.2.linux-amd64.tar.gz
+# tar -C /usr/local -xzf go.tgz 
+# tar -C /usr/local -xzf go1.15.2.linux-amd64.tar.gz
 
+# cd /usr/local/go/src/ 
+# ./make.bash 
+export PATH="/usr/local/go/bin:$PATH"
+export GOPATH=/go
+export PATH=$PATH:$GOPATH/bin 
+go version
+
+# SETUP argonaut
+apk add git
+apk add openssh
+
+# 1. Create the SSH directory.
+# 2. Populate the private key file.
+# 3. Set the required permissions.
+# 4. Add github to our list of known hosts for ssh.
+
+# mkdir -p /root/.ssh/
+# echo "$SSH_KEY" > /root/.ssh/id_rsa
+# chmod -R 600 /root/.ssh/
+# ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+
+# Clone a repository (my website in this case)
+git clone git@github.com:argonautdev/argonaut.git
+cd argonaut
+go build
+chmod +x argonaut
+mv argonaut ../bin/
 cd ../
 
-argonaut build 
+argonaut build
 argonaut apply
+
+cd ../
 
 dd if=/dev/zero of=/dev/null
