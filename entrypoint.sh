@@ -19,10 +19,7 @@ mkdir -p $ARGONAUT_WORKSPACE
 cd $ARGONAUT_WORKSPACE
 mkdir -p bin
 
-apk add curl
-apk add bash
-apk add zlib-dev
-apk add binutils
+apk add curl bash zlib-dev binutils
 
 # SETUP kubectl
 echo "Setting up kubectl"
@@ -47,8 +44,7 @@ echo "Setting up aws-cli"
 wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
 wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.32-r0/glibc-2.32-r0.apk
 wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.32-r0/glibc-bin-2.32-r0.apk
-apk add glibc-2.32-r0.apk
-apk add glibc-bin-2.32-r0.apk
+apk add glibc-2.32-r0.apk glibc-bin-2.32-r0.apk
 
 curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip -q awscliv2.zip
@@ -59,38 +55,9 @@ ls -al
 ls -al bin/
 # TODO: Incorporate this into argonaut templates https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
 
-# SETUP Go
-# apk add --no-cache gcc 
-apk add musl-dev openssl go 
-# wget -O go.tgz https://golang.org/dl/go1.15.2.linux-amd64.tar.gz
-# tar -C /usr/local -xzf go.tgz 
-# tar -C /usr/local -xzf go1.15.2.linux-amd64.tar.gz
-
-# cd /usr/local/go/src/ 
-# ./make.bash 
-export PATH="/usr/local/go/bin:$PATH"
-export GOPATH=/go
-export PATH=$PATH:$GOPATH/bin 
-go version
-
 # SETUP argonaut
-apk add git
-apk add openssh
-
-# 1. Create the SSH directory.
-# 2. Populate the private key file.
-# 3. Set the required permissions.
-# 4. Add github to our list of known hosts for ssh.
-
-# mkdir -p /root/.ssh/
-# echo "$SSH_KEY" > /root/.ssh/id_rsa
-# chmod -R 600 /root/.ssh/
-# ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-
-# Clone a repository (my website in this case)
-git clone git@github.com:argonautdev/argonaut.git
-cd argonaut
-go build
+https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/argonaut-linux-amd64
+mv argonaut-linux-amd64 argonaut
 chmod +x argonaut
 mv argonaut ../bin/
 cd ../
