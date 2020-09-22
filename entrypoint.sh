@@ -26,6 +26,7 @@ echo "Setting up kubectl"
 curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x ./kubectl
 export PATH=$CWD/$ARGONAUT_WORKSPACE/bin:$PATH
+# export PATH=/argonaut-workspace/bin:$PATH
 mv kubectl ./bin
 
 # SETUP kustomize
@@ -56,11 +57,9 @@ ls -al bin/
 # TODO: Incorporate this into argonaut templates https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
 
 # SETUP argonaut
-https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/argonaut-linux-amd64
-mv argonaut-linux-amd64 argonaut
-chmod +x argonaut
-mv argonaut ../bin/
-cd ../
+curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
+mv argonaut ./bin/argonaut
+chmod +x ./bin/argonaut
 
 argonaut build
 argonaut apply
