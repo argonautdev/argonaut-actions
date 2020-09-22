@@ -18,6 +18,9 @@ ARGONAUT_WORKSPACE="argonaut-workspace"
 mkdir -p $ARGONAUT_WORKSPACE
 cd $ARGONAUT_WORKSPACE
 
+apk add curl
+# apk add bash
+
 # SETUP kubectl
 curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x ./kubectl
