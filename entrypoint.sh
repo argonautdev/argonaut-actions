@@ -65,6 +65,7 @@ argonaut
 # argonaut build
 # argonaut apply
 
-# cd ../
+cd ../
+ls -al
 
 # dd if=/dev/zero of=/dev/null
