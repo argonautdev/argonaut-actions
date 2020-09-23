@@ -5,7 +5,7 @@ NAME=$1
 AWS_ACCESS_KEY_ID=$2
 AWS_SECRET_ACCESS_KEY=$3
 
-ARGONAUT_WORKSPACE="/argonaut-workspace"
+ARGONAUT_WORKSPACE="./argonaut-workspace"
 AWS_CONFIG_FILE="$ARGONAUT_WORKSPACE/.aws/config"   # "~/.aws/config"
 AWS_SHARED_CREDENTIALS_FILE="$ARGONAUT_WORKSPACE/.aws/credentials" # "~/.aws/credentials"
 
@@ -61,6 +61,8 @@ aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" > $AWS_SHARED_CREDENTIALS_FILE
 echo "[default] \
 output=json" > $AWS_CONFIG_FILE
 # region=us-west-2 \
+
+echo "aws vars are $AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY"
 
 # SETUP argonaut
 curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
