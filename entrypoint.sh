@@ -63,7 +63,7 @@ echo "[default] \
 output=json" > $AWS_CONFIG_FILE
 # region=us-west-2 \
 
-echo "aws vars are $AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY"
+echo "aws secrets are not printed, see: $AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY"
 
 # SETUP argonaut
 curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
