@@ -60,10 +60,11 @@ ls -al bin/
 curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
 mv argonaut ./bin/argonaut
 chmod +x ./bin/argonaut
+argonaut
 
-argonaut build
-argonaut apply
+# argonaut build
+# argonaut apply
 
-cd ../
+# cd ../
 
-dd if=/dev/zero of=/dev/null
+# dd if=/dev/zero of=/dev/null
