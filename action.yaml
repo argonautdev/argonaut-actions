@@ -6,6 +6,14 @@ inputs:
     description: "Who to greet"
     required: true
     default: "Jason"
+  aws-access-key-id:
+    description: "AWS Access Key ID"
+    required: true
+    default: ""
+  aws-secret-access-key:
+    description: "AWS Secret Access Key"
+    required: true
+    default: ""
 outputs:
   time-now:
     description: "Time Now"
@@ -14,7 +22,9 @@ runs:
   using: "docker"
   image: "Dockerfile"
   args:
-    - ${{ inputs.who-to-greet }}
+    - ${{ inputs.who-to-greet }} # $1
+    - ${{ inputs.aws-access-key-id }} # $2
+    - ${{ inputs.aws-secret-access-key }} # $3
 branding:
   icon: "server"
   color: "purple"

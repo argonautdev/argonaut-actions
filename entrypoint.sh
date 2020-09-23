@@ -1,23 +1,26 @@
 #!/bin/sh -l
 
+# INPUTS
 NAME=$1
-CWD=`pwd`
+AWS_ACCESS_KEY_ID=$2
+AWS_SECRET_ACCESS_KEY=$3
+
+ARGONAUT_WORKSPACE="/argonaut-workspace"
+AWS_CONFIG_FILE="$ARGONAUT_WORKSPACE/.aws/config"   # "~/.aws/config"
+AWS_SHARED_CREDENTIALS_FILE="$ARGONAUT_WORKSPACE/.aws/credentials" # "~/.aws/credentials"
+
 echo "Heave ho $NAME"
 time=$(date)
 echo "::set-output name=time-now::$time"
 
-# Get the lay of the land
-ls -al
-pwd
-ls -al ../
-ps
-env
-
 # Prep workspace
-ARGONAUT_WORKSPACE="argonaut-workspace"
 mkdir -p $ARGONAUT_WORKSPACE
 cd $ARGONAUT_WORKSPACE
 mkdir -p bin
+
+mkdir -p "$ARGONAUT_WORKSPACE/.aws"
+touch $AWS_CONFIG_FILE
+touch $AWS_SHARED_CREDENTIALS_FILE
 
 apk add curl bash zlib-dev binutils
 
@@ -37,35 +40,42 @@ mv kustomize ./bin
 
 # SETUP eksctl
 echo "Setting up eksctl"
-curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s | awk '{print tolower($0)}')_amd64.tar.gz" | tar xz -C ./
+curl -s --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s | awk '{print tolower($0)}')_amd64.tar.gz" | tar xz -C ./
 mv eksctl ./bin
 
 # SETUP aws configure
 echo "Setting up aws-cli"
 wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
-wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.32-r0/glibc-2.32-r0.apk
-wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.32-r0/glibc-bin-2.32-r0.apk
+wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.32-r0/glibc-2.32-r0.apk
+wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.32-r0/glibc-bin-2.32-r0.apk
 apk add glibc-2.32-r0.apk glibc-bin-2.32-r0.apk
 
 curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip -q awscliv2.zip
 aws/install --bin-dir ./bin
 
-pwd
-ls -al
-ls -al bin/
-# TODO: Incorporate this into argonaut templates https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
+echo "[default]\
+aws_access_key_id=$AWS_ACCESS_KEY_ID \
+aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" > $AWS_SHARED_CREDENTIALS_FILE
+
+echo "[default] \
+output=json" > $AWS_CONFIG_FILE
+# region=us-west-2 \
 
 # SETUP argonaut
 curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
 mv argonaut ./bin/argonaut
 chmod +x ./bin/argonaut
-argonaut
 
-# argonaut build
+argonaut build
 # argonaut apply
 
 cd ../
+# Get the lay of the land again
+pwd
 ls -al
 
+
+# Reading TEST env var
+echo "Reading TEST env var: $TEST"
 # dd if=/dev/zero of=/dev/null
