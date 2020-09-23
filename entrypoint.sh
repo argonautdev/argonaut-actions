@@ -15,12 +15,15 @@ echo "::set-output name=time-now::$time"
 
 # Prep workspace
 mkdir -p $ARGONAUT_WORKSPACE
-cd $ARGONAUT_WORKSPACE
-mkdir -p bin
+mkdir -p $ARGONAUT_WORKSPACE/bin
+mkdir -p $ARGONAUT_WORKSPACE/.aws
+export PATH="$ARGONAUT_WORKSPACE/bin":$PATH
 
-mkdir -p "$ARGONAUT_WORKSPACE/.aws"
+cd $ARGONAUT_WORKSPACE
+
 touch $AWS_CONFIG_FILE
 touch $AWS_SHARED_CREDENTIALS_FILE
+
 
 apk add curl bash zlib-dev binutils
 
@@ -28,8 +31,6 @@ apk add curl bash zlib-dev binutils
 echo "Setting up kubectl"
 curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x ./kubectl
-export PATH=$CWD/$ARGONAUT_WORKSPACE/bin:$PATH
-# export PATH=/argonaut-workspace/bin:$PATH
 mv kubectl ./bin
 
 # SETUP kustomize
@@ -76,7 +77,9 @@ cd ../
 # Get the lay of the land again
 pwd
 ls -al
-
+env
+cat $AWS_CONFIG_FILE
+cat $AWS_SHARED_CREDENTIALS_FILE
 
 # Reading TEST env var
 echo "Reading TEST env var: $TEST"
