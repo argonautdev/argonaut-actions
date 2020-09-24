@@ -2,8 +2,8 @@
 
 # INPUTS
 NAME=$1
-# AWS_ACCESS_KEY_ID=$2
-# AWS_SECRET_ACCESS_KEY=$3
+AWS_ACCESS_KEY_ID=$2
+AWS_SECRET_ACCESS_KEY=$3
 
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
 AWS_CONFIG_FILE="$ARGONAUT_WORKSPACE/.aws/config"   # "~/.aws/config"
@@ -55,7 +55,8 @@ curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.
 unzip -q awscliv2.zip
 aws/install --bin-dir ./bin
 
-
+export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
 # echo "[default]\
 # aws_access_key_id=$AWS_ACCESS_KEY_ID \

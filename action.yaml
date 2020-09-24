@@ -23,8 +23,8 @@ runs:
   image: "Dockerfile"
   args:
     - ${{ inputs.who-to-greet }} # $1
-    # - ${{ inputs.aws-access-key-id }} # $2
-    # - ${{ inputs.aws-secret-access-key }} # $3
+    - ${{ inputs.aws-access-key-id }} # $2
+    - ${{ inputs.aws-secret-access-key }} # $3
 branding:
   icon: "server"
   color: "purple"
