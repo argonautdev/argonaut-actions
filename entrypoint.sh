@@ -2,8 +2,8 @@
 
 # INPUTS
 NAME=$1
-AWS_ACCESS_KEY_ID=$2
-AWS_SECRET_ACCESS_KEY=$3
+# AWS_ACCESS_KEY_ID=$2
+# AWS_SECRET_ACCESS_KEY=$3
 
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
 AWS_CONFIG_FILE="$ARGONAUT_WORKSPACE/.aws/config"   # "~/.aws/config"
@@ -55,15 +55,17 @@ curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.
 unzip -q awscliv2.zip
 aws/install --bin-dir ./bin
 
-echo "[default]\
-aws_access_key_id=$AWS_ACCESS_KEY_ID \
-aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" > $AWS_SHARED_CREDENTIALS_FILE
 
-echo "[default] \
-output=json" > $AWS_CONFIG_FILE
-# region=us-west-2 \
 
-echo "aws secrets are not printed, see: $AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY"
+# echo "[default]\
+# aws_access_key_id=$AWS_ACCESS_KEY_ID \
+# aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" > $AWS_SHARED_CREDENTIALS_FILE
+
+# echo "[default] \
+# output=json" > $AWS_CONFIG_FILE
+# # region=us-west-2 \
+
+# echo "aws secrets are not printed, see: $AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY"
 
 # SETUP argonaut
 curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
