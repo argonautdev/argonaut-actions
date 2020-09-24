@@ -73,6 +73,15 @@ chmod +x ./bin/argonaut
 argonaut build
 # argonaut apply
 
+# Apply eksctl and kubectl anyway
+echo "Creating cluster"
+curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsclusterconfig.yaml" -o "awsclusterconfig.yaml"
+eksctl create cluster -f awsclusterconfig.yaml
+
+echo "Applying deployment"
+curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsexample.yaml" -o "awsexample.yaml"
+kubectl apply -f awsexample.yaml
+
 cd ../
 # Get the lay of the land again
 pwd
@@ -83,4 +92,5 @@ cat $AWS_SHARED_CREDENTIALS_FILE
 
 # Reading TEST env var
 echo "Reading TEST env var: $TEST"
-# dd if=/dev/zero of=/dev/null
+# while :; do echo '.'; sleep 5 ; done
+# dd if=/dev/zero of=/dev/null      # Generates load

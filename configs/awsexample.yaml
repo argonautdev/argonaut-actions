@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: guinea-svc
+  namespace: dev
+  labels:
+    env: dev
+    app: guinea-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: guinea-app
+  ports:
+    - port: 80 # port exposed in the service (external)
+      # targetPort: 80
+      targetPort: 3000 # port exposed in the pod (internal)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guinea-deployment
+  namespace: dev
+  labels:
+    app: guinea-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guinea-app
+  template:
+    metadata:
+      labels:
+        app: guinea-app
+    spec:
+      containers:
+        - name: guinea-app
+          # image: wordpress
+          image: 363397145679.dkr.ecr.us-east-2.amazonaws.com/guinea:v4 # (v4 -> has sleep)
+          # image: ghcr.io/argonautdev/guineapig:latest
+          # imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "400m"
+            # limits:
+            #   memory: "128Mi"
+            #   cpu: "500m"
+          ports:
+            # - containerPort: 80
+            - containerPort: 3000
