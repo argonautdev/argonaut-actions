@@ -6,8 +6,8 @@ AWS_ACCESS_KEY_ID=$2
 AWS_SECRET_ACCESS_KEY=$3
 
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
-AWS_CONFIG_FILE="$ARGONAUT_WORKSPACE/.aws/config"   # "~/.aws/config"
-AWS_SHARED_CREDENTIALS_FILE="$ARGONAUT_WORKSPACE/.aws/credentials" # "~/.aws/credentials"
+# AWS_CONFIG_FILE="$ARGONAUT_WORKSPACE/.aws/config"   # "~/.aws/config"
+# AWS_SHARED_CREDENTIALS_FILE="$ARGONAUT_WORKSPACE/.aws/credentials" # "~/.aws/credentials"
 
 echo "Heave ho $NAME"
 time=$(date)
@@ -21,8 +21,8 @@ export PATH="$ARGONAUT_WORKSPACE/bin":$PATH
 
 cd $ARGONAUT_WORKSPACE
 
-touch $AWS_CONFIG_FILE
-touch $AWS_SHARED_CREDENTIALS_FILE
+# touch $AWS_CONFIG_FILE
+# touch $AWS_SHARED_CREDENTIALS_FILE
 
 
 apk add curl bash zlib-dev binutils
@@ -90,8 +90,8 @@ cd ../
 pwd
 ls -al
 env
-cat $AWS_CONFIG_FILE
-cat $AWS_SHARED_CREDENTIALS_FILE
+# cat $AWS_CONFIG_FILE
+# cat $AWS_SHARED_CREDENTIALS_FILE
 
 # Reading TEST env var
 echo "Reading TEST env var: $TEST"
