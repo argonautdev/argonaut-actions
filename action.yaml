@@ -6,14 +6,14 @@ inputs:
     description: "Who to greet"
     required: true
     default: "Jason"
-  # aws-access-key-id:
-  #   description: "AWS Access Key ID"
-  #   required: true
-  #   default: ""
-  # aws-secret-access-key:
-  #   description: "AWS Secret Access Key"
-  #   required: true
-  #   default: ""
+  aws-access-key-id:
+    description: "AWS Access Key ID"
+    required: true
+    default: ""
+  aws-secret-access-key:
+    description: "AWS Secret Access Key"
+    required: true
+    default: ""
 outputs:
   time-now:
     description: "Time Now"
