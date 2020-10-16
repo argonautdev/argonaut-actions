@@ -16,14 +16,12 @@ echo "::set-output name=time-now::$time"
 # Prep workspace
 mkdir -p $ARGONAUT_WORKSPACE
 mkdir -p $ARGONAUT_WORKSPACE/bin
-mkdir -p $ARGONAUT_WORKSPACE/.aws
 export PATH="$ARGONAUT_WORKSPACE/bin":$PATH
 
 cd $ARGONAUT_WORKSPACE
 
 # touch $AWS_CONFIG_FILE
 # touch $AWS_SHARED_CREDENTIALS_FILE
-
 
 apk add curl bash zlib-dev binutils
 
@@ -58,23 +56,13 @@ aws/install --bin-dir ./bin
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
-# echo "[default]\
-# aws_access_key_id=$AWS_ACCESS_KEY_ID \
-# aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" > $AWS_SHARED_CREDENTIALS_FILE
+# # SETUP argonaut
+# curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
+# mv argonaut ./bin/argonaut
+# chmod +x ./bin/argonaut
 
-# echo "[default] \
-# output=json" > $AWS_CONFIG_FILE
-# # region=us-west-2 \
-
-# echo "aws secrets are not printed, see: $AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY"
-
-# SETUP argonaut
-curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
-mv argonaut ./bin/argonaut
-chmod +x ./bin/argonaut
-
-argonaut build
-# argonaut apply
+# # argonaut build
+# # argonaut apply
 
 # Apply eksctl and kubectl anyway
 echo "Creating cluster"
@@ -86,14 +74,10 @@ curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/c
 kubectl apply -f awsexample.yaml
 
 cd ../
-# Get the lay of the land again
+# Get the lay of the land
 pwd
 ls -al
 env
-# cat $AWS_CONFIG_FILE
-# cat $AWS_SHARED_CREDENTIALS_FILE
 
 # Reading TEST env var
 echo "Reading TEST env var: $TEST"
-# while :; do echo '.'; sleep 5 ; done
-# dd if=/dev/zero of=/dev/null      # Generates load
