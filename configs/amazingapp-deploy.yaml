@@ -6,15 +6,15 @@ metadata:
 apiVersion: v1
 kind: Service
 metadata:
-  name: guinea-svc
+  name: amazingapp-svc
   namespace: dev
   labels:
     env: dev
-    app: guinea-app
+    app: amazingapp
 spec:
   type: LoadBalancer
   selector:
-    app: guinea-app
+    app: amazingapp
   ports:
     - port: 80 # port exposed in the service (external)
       # targetPort: 80
@@ -23,24 +23,24 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: guinea-deployment
+  name: amazingapp-deployment
   namespace: dev
   labels:
-    app: guinea-app
+    app: amazingapp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: guinea-app
+      app: amazingapp
   template:
     metadata:
       labels:
-        app: guinea-app
+        app: amazingapp
     spec:
       containers:
-        - name: guinea-app
+        - name: amazingapp
           # image: wordpress
-          image: 363397145679.dkr.ecr.us-east-2.amazonaws.com/guinea:v4 # (v4 -> has sleep)
+          image: 363397145679.dkr.ecr.us-east-2.amazonaws.com/amazingapp:v4 # (v4 -> has sleep)
           # image: ghcr.io/argonautdev/guineapig:latest
           # imagePullPolicy: IfNotPresent
           imagePullPolicy: Always
