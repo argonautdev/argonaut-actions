@@ -31,16 +31,16 @@ curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s ht
 chmod +x ./kubectl
 mv kubectl ./bin
 
-# SETUP kustomize
-echo "Setting up kustomize"
-curl -s "https://raw.githubusercontent.com/\
-kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-mv kustomize ./bin
+# # SETUP kustomize
+# echo "Setting up kustomize"
+# curl -s "https://raw.githubusercontent.com/\
+# kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+# mv kustomize ./bin
 
-# SETUP eksctl
-echo "Setting up eksctl"
-curl -s --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s | awk '{print tolower($0)}')_amd64.tar.gz" | tar xz -C ./
-mv eksctl ./bin
+# # SETUP eksctl
+# echo "Setting up eksctl"
+# curl -s --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s | awk '{print tolower($0)}')_amd64.tar.gz" | tar xz -C ./
+# mv eksctl ./bin
 
 # SETUP aws configure
 echo "Setting up aws-cli"
@@ -64,11 +64,12 @@ export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 # # argonaut build
 # # argonaut apply
 
-# Apply eksctl and kubectl anyway
-echo "Creating cluster"
-curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsclusterconfig.yaml" -o "awsclusterconfig.yaml"
-eksctl create cluster -f awsclusterconfig.yaml
+# # Apply eksctl
+# echo "Creating cluster"
+# curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsclusterconfig.yaml" -o "awsclusterconfig.yaml"
+# eksctl create cluster -f awsclusterconfig.yaml
 
+# Apply kubectl
 echo "Applying deployment"
 curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsexample.yaml" -o "awsexample.yaml"
 kubectl apply -f awsexample.yaml
