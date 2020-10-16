@@ -37,11 +37,6 @@ mv kubectl ./bin
 # kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 # mv kustomize ./bin
 
-# # SETUP eksctl
-# echo "Setting up eksctl"
-# curl -s --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s | awk '{print tolower($0)}')_amd64.tar.gz" | tar xz -C ./
-# mv eksctl ./bin
-
 # SETUP aws configure
 echo "Setting up aws-cli"
 wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
@@ -63,11 +58,6 @@ export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
 # # argonaut build
 # # argonaut apply
-
-# # Apply eksctl
-# echo "Creating cluster"
-# curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsclusterconfig.yaml" -o "awsclusterconfig.yaml"
-# eksctl create cluster -f awsclusterconfig.yaml
 
 # Apply kubectl
 echo "Applying deployment"
