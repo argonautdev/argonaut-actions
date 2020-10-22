@@ -9,10 +9,7 @@ GH_USER=$5
 GH_PAT=$6
 
 APP_NAME=`echo $GITHUB_REPOSITORY | cut -d'/' -f 2`
-
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
-# AWS_CONFIG_FILE="$ARGONAUT_WORKSPACE/.aws/config"   # "~/.aws/config"
-# AWS_SHARED_CREDENTIALS_FILE="$ARGONAUT_WORKSPACE/.aws/credentials" # "~/.aws/credentials"
 
 echo "Heave ho $NAME"
 time=$(date)
@@ -24,9 +21,6 @@ mkdir -p $ARGONAUT_WORKSPACE/bin
 export PATH="$ARGONAUT_WORKSPACE/bin":$PATH
 
 cd $ARGONAUT_WORKSPACE
-
-# touch $AWS_CONFIG_FILE
-# touch $AWS_SHARED_CREDENTIALS_FILE
 
 apk add curl bash zlib-dev binutils jq
 
@@ -68,7 +62,10 @@ export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw
 export ARGO_PWD=`kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2`
 
 # Install ArgoCD CLI
+echo "Installing ArgoCD CLI"
 curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v1.7.8/argocd-linux-amd64
+chmod a+x /usr/local/bin/argocd
+
 
 argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
 argocd cluster list
@@ -82,8 +79,6 @@ kubectl create namespace $APP_NAME
 argocd app create $APP_NAME+release --repo https://github.com/$GITHUB_REPOSITORY.git --path helm-config --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME
 argocd app sync $APP_NAME+release
 
-
-
 # # SETUP argonaut
 # curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
 # mv argonaut ./bin/argonaut
@@ -92,10 +87,6 @@ argocd app sync $APP_NAME+release
 # # argonaut build
 # # argonaut apply
 
-# Apply kubectl
-echo "Applying deployment"
-curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsexample.yaml" -o "awsexample.yaml"
-kubectl apply -f awsexample.yaml
 
 cd ../
 # Get the lay of the land
