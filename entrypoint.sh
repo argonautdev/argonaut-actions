@@ -4,6 +4,11 @@
 NAME=$1
 AWS_ACCESS_KEY_ID=$2
 AWS_SECRET_ACCESS_KEY=$3
+DOCKER_IMAGE=$4
+GH_USER=$5
+GH_PAT=$6
+
+APP_NAME=`echo $GITHUB_REPOSITORY | cut -d'/' -f 2`
 
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
 # AWS_CONFIG_FILE="$ARGONAUT_WORKSPACE/.aws/config"   # "~/.aws/config"
@@ -51,6 +56,25 @@ aws/install --bin-dir ./bin
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
+# Setup ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output .status.loadBalancer.ingress[0].hostname`
+export ARGO_PWD=`kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2`
+argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
+argocd cluster list
+export CONTEXT_NAME=`kubectl config view -o jsonpath='{.contexts[].name}'`
+argocd cluster add $CONTEXT_NAME
+ecport CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
+
+kubectl create namespace $APP_NAME
+argocd app create $APP_NAME+release --repo https://github.com/$GITHUB_REPOSITORY.git --path helm-config --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME
+argocd app sync $APP_NAME+release
+
+
+
 # # SETUP argonaut
 # curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
 # mv argonaut ./bin/argonaut
@@ -59,10 +83,10 @@ export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 # # argonaut build
 # # argonaut apply
 
-# Apply kubectl
-echo "Applying deployment"
-curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsexample.yaml" -o "awsexample.yaml"
-kubectl apply -f awsexample.yaml
+# # Apply kubectl
+# echo "Applying deployment"
+# curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsexample.yaml" -o "awsexample.yaml"
+# kubectl apply -f awsexample.yaml
 
 cd ../
 # Get the lay of the land
