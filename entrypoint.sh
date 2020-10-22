@@ -28,7 +28,7 @@ cd $ARGONAUT_WORKSPACE
 # touch $AWS_CONFIG_FILE
 # touch $AWS_SHARED_CREDENTIALS_FILE
 
-apk add curl bash zlib-dev binutils
+apk add curl bash zlib-dev binutils jq
 
 # SETUP kubectl
 echo "Setting up kubectl"
