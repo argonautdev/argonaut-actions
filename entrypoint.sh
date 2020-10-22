@@ -76,8 +76,10 @@ export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
 kubectl create namespace $APP_NAME
-argocd app create $APP_NAME+release --repo https://github.com/$GITHUB_REPOSITORY.git --path helm-config --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME
-argocd app sync $APP_NAME+release
+echo "Sleeping for 20s"
+sleep 20s
+argocd app create "$APP_NAME-release" --repo https://github.com/$GITHUB_REPOSITORY.git --path helm-config --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME --auto-prune --sync-policy automated
+argocd app sync "$APP_NAME-release"
 
 # # SETUP argonaut
 # curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"
