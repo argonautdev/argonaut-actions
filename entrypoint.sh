@@ -85,10 +85,10 @@ argocd app sync $APP_NAME+release
 # # argonaut build
 # # argonaut apply
 
-# # Apply kubectl
-# echo "Applying deployment"
-# curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsexample.yaml" -o "awsexample.yaml"
-# kubectl apply -f awsexample.yaml
+# Apply kubectl
+echo "Applying deployment"
+curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/configs/awsexample.yaml" -o "awsexample.yaml"
+kubectl apply -f awsexample.yaml
 
 cd ../
 # Get the lay of the land
