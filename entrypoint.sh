@@ -57,9 +57,9 @@ export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
 # Setup ArgoCD
+echo "Setting up ArgoCD"
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output .status.loadBalancer.ingress[0].hostname`
 export ARGO_PWD=`kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2`
@@ -67,8 +67,10 @@ argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
 argocd cluster list
 export CONTEXT_NAME=`kubectl config view -o jsonpath='{.contexts[].name}'`
 argocd cluster add $CONTEXT_NAME
-ecport CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
+export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 
+# Create ArgoCD app release
+echo "Creating ArgoCD app release"
 kubectl create namespace $APP_NAME
 argocd app create $APP_NAME+release --repo https://github.com/$GITHUB_REPOSITORY.git --path helm-config --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME
 argocd app sync $APP_NAME+release
