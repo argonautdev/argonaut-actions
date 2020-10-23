@@ -24,7 +24,7 @@ export PATH="$ARGONAUT_WORKSPACE/bin":$PATH
 
 cd $ARGONAUT_WORKSPACE
 
-apk add curl bash zlib-dev binutils jq yq
+apk add curl bash zlib-dev binutils jq
 
 # SETUP kubectl
 echo "Setting up kubectl"
@@ -68,6 +68,8 @@ echo "Installing ArgoCD CLI"
 curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v1.7.8/argocd-linux-amd64
 chmod a+x /usr/local/bin/argocd
 
+echo "Sleeping for 30s to give time for argocd resources to be spun up"
+sleep 30s
 
 argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
 argocd cluster list
@@ -79,8 +81,7 @@ export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
 kubectl create namespace $APP_NAME
-echo "Sleeping for 10s"
-sleep 10s
+
 argocd app create "$APP_NAME-release" --repo https://github.com/$GITHUB_REPOSITORY.git --path $CONFIG_PATH --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME --auto-prune --sync-policy automated
 argocd app sync "$APP_NAME-release"
 
@@ -93,6 +94,9 @@ git remote set-url origin https://${GH_USER}:${GH_PAT}@github.com/$GITHUB_REPOSI
 git config --global user.email "github@github.com"
 git config --global user.name "[Argonaut] GitHub CI/CD"
 
+# Install yq
+wget -O /usr/local/bin/yaml "https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64"
+
 yq w -i values.yaml image.repository $DOCKER_IMAGE_REPO
 yq w -i values.yaml image.tag $DOCKER_IMAGE_TAG
 echo "Updated file"
@@ -102,7 +106,7 @@ echo "Git commit of new image (excluding tmp files)"
 git add values.yaml
 git commit -m '[skip ci] DEV image update'
 export BRANCH_NAME=${GITHUB_REF#refs/heads/}
-git push origin BRANCH_NAME
+git push origin $BRANCH_NAME
 
 
 # # SETUP argonaut
