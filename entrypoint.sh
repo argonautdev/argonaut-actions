@@ -11,7 +11,7 @@ GH_PAT=$7
 
 APP_NAME=`echo $GITHUB_REPOSITORY | cut -d'/' -f 2`
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
-CONFIG_PATH=helm-config
+CONFIG_PATH=`pwd`/helm-config
 
 echo "Heave ho $NAME"
 time=$(date)
@@ -53,7 +53,7 @@ export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
 # Setup kubectl config
-aws eks --region us-east-2 update-kubeconfig --name shadowcluster
+aws eks --region us-east-2 update-kubeconfig --name shadow
 
 # Setup ArgoCD
 echo "Setting up ArgoCD"
@@ -79,27 +79,27 @@ export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
 kubectl create namespace $APP_NAME
-echo "Sleeping for 2s"
-sleep 2s
+echo "Sleeping for 10s"
+sleep 10s
 argocd app create "$APP_NAME-release" --repo https://github.com/$GITHUB_REPOSITORY.git --path $CONFIG_PATH --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME --auto-prune --sync-policy automated
 argocd app sync "$APP_NAME-release"
 
 # Update docker image with latest tag
+cd $CONFIG_PATH
+
 echo "Updating docker image tag - fetch repo"
 apk add --no-cache git
 git remote set-url origin https://${GH_USER}:${GH_PAT}@github.com/$GITHUB_REPOSITORY.git
 git config --global user.email "github@github.com"
 git config --global user.name "[Argonaut] GitHub CI/CD"
 
-cd $CONFIG_PATH
 yq w -i values.yaml image.repository $DOCKER_IMAGE_REPO
 yq w -i values.yaml image.tag $DOCKER_IMAGE_TAG
 echo "Updated file"
 cat values.yaml
 
-cd ..
 echo "Git commit of new image (excluding tmp files)"
-git add $CONFIG_PATH/values.yaml
+git add values.yaml
 git commit -m '[skip ci] DEV image update'
 export BRANCH_NAME=${GITHUB_REF#refs/heads/}
 git push origin BRANCH_NAME
