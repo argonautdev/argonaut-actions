@@ -82,7 +82,7 @@ export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 echo "Creating ArgoCD app release"
 kubectl create namespace $APP_NAME
 
-argocd app create "$APP_NAME-release" --repo https://github.com/$GITHUB_REPOSITORY.git --path $CONFIG_PATH --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME --auto-prune --sync-policy automated
+argocd app create "$APP_NAME-release" --repo https://github.com/$GITHUB_REPOSITORY.git --path helm-config --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME --auto-prune --sync-policy automated
 argocd app sync "$APP_NAME-release"
 
 # Update docker image with latest tag
@@ -96,6 +96,7 @@ git config --global user.name "[Argonaut] GitHub CI/CD"
 
 # Install yq
 wget -O $ARGONAUT_WORKSPACE/bin/yq "https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64"
+chmod a+x $ARGONAUT_WORKSPACE/bin/yq
 
 yq w -i values.yaml image.repository $DOCKER_IMAGE_REPO
 yq w -i values.yaml image.tag $DOCKER_IMAGE_TAG
