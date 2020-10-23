@@ -24,7 +24,7 @@ export PATH="$ARGONAUT_WORKSPACE/bin":$PATH
 
 cd $ARGONAUT_WORKSPACE
 
-apk add curl bash zlib-dev binutils jq
+apk add curl bash zlib-dev binutils jq yq
 
 # SETUP kubectl
 echo "Setting up kubectl"
