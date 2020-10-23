@@ -95,7 +95,7 @@ git config --global user.email "github@github.com"
 git config --global user.name "[Argonaut] GitHub CI/CD"
 
 # Install yq
-wget -O /usr/local/bin/yaml "https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64"
+wget -O $ARGONAUT_WORKSPACE/bin/yq "https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64"
 
 yq w -i values.yaml image.repository $DOCKER_IMAGE_REPO
 yq w -i values.yaml image.tag $DOCKER_IMAGE_TAG
