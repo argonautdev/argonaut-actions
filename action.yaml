@@ -18,8 +18,8 @@ inputs:
     description: "Docker Image Repository"
     required: true
     default: ""
-  docker-image-tag:
-    description: "Docker Image Tag"
+  docker-image-digest:
+    description: "Docker Image Digest"
     required: true
     default: ""
   gh-username:

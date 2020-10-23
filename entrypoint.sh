@@ -5,7 +5,7 @@ NAME=$1
 AWS_ACCESS_KEY_ID=$2
 AWS_SECRET_ACCESS_KEY=$3
 DOCKER_IMAGE_REPO=$4
-DOCKER_IMAGE_TAG=$5
+DOCKER_IMAGE_DIGEST=$5
 GH_USER=$6
 GH_PAT=$7
 
@@ -99,7 +99,8 @@ wget -O $ARGONAUT_WORKSPACE/bin/yq "https://github.com/mikefarah/yq/releases/dow
 chmod a+x $ARGONAUT_WORKSPACE/bin/yq
 
 yq w -i values.yaml image.repository $DOCKER_IMAGE_REPO
-yq w -i values.yaml image.tag $DOCKER_IMAGE_TAG
+yq w -i values.yaml image.tag $DOCKER_IMAGE_DIGEST
+yq w -i values.yaml image.name[+] "$DOCKER_IMAGE_REPO@$DOCKER_IMAGE_DIGEST"
 echo "Updated file"
 cat values.yaml
 
