@@ -4,12 +4,14 @@
 NAME=$1
 AWS_ACCESS_KEY_ID=$2
 AWS_SECRET_ACCESS_KEY=$3
-DOCKER_IMAGE=$4
-GH_USER=$5
-GH_PAT=$6
+DOCKER_IMAGE_REPO=$4
+DOCKER_IMAGE_TAG=$5
+GH_USER=$6
+GH_PAT=$7
 
 APP_NAME=`echo $GITHUB_REPOSITORY | cut -d'/' -f 2`
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
+CONFIG_PATH=helm-config
 
 echo "Heave ho $NAME"
 time=$(date)
@@ -71,15 +73,37 @@ argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
 argocd cluster list
 export CONTEXT_NAME=`kubectl config view -o jsonpath='{.contexts[].name}'`
 argocd cluster add $CONTEXT_NAME
+# If there are multiple clusters, need to pick the right one
 export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
 kubectl create namespace $APP_NAME
-echo "Sleeping for 20s"
-sleep 20s
-argocd app create "$APP_NAME-release" --repo https://github.com/$GITHUB_REPOSITORY.git --path helm-config --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME --auto-prune --sync-policy automated
+echo "Sleeping for 2s"
+sleep 2s
+argocd app create "$APP_NAME-release" --repo https://github.com/$GITHUB_REPOSITORY.git --path $CONFIG_PATH --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME --auto-prune --sync-policy automated
 argocd app sync "$APP_NAME-release"
+
+# Update docker image with latest tag
+echo "Updating docker image tag - fetch repo"
+apk add --no-cache git
+git remote set-url origin https://${GH_USER}:${GH_PAT}@github.com/$GITHUB_REPOSITORY.git
+git config --global user.email "github@github.com"
+git config --global user.name "[Argonaut] GitHub CI/CD"
+
+cd $CONFIG_PATH
+yq w -i values.yaml image.repository $DOCKER_IMAGE_REPO
+yq w -i values.yaml image.tag $DOCKER_IMAGE_TAG
+echo "Updated file"
+cat values.yaml
+
+cd ..
+echo "Git commit of new image (excluding tmp files)"
+git add $CONFIG_PATH/values.yaml
+git commit -m '[skip ci] DEV image update'
+export BRANCH_NAME=${GITHUB_REF#refs/heads/}
+git push origin BRANCH_NAME
+
 
 # # SETUP argonaut
 # curl -s "https://raw.githubusercontent.com/argonautdev/argonaut-actions/master/bin/argonaut-linux-amd64" -o "argonaut"

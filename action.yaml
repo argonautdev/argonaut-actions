@@ -14,6 +14,10 @@ inputs:
     description: "AWS Secret Access Key"
     required: true
     default: ""
+  docker-image-repository:
+    description: "Docker Image Repository"
+    required: true
+    default: ""
   docker-image-tag:
     description: "Docker Image Tag"
     required: true
@@ -37,9 +41,10 @@ runs:
     - ${{ inputs.who-to-greet }} # $1
     - ${{ inputs.aws-access-key-id }} # $2
     - ${{ inputs.aws-secret-access-key }} # $3
-    - ${{ inputs.docker-image-tag }} # $4
-    - ${{ inputs.gh-username }} # $5
-    - ${{ inputs.gh-access-token }} # $6
+    - ${{ inputs.docker-image-repository }} # $4
+    - ${{ inputs.docker-image-tag }} # $5
+    - ${{ inputs.gh-username }} # $6
+    - ${{ inputs.gh-access-token }} # $7
 branding:
   icon: "server"
   color: "purple"
