@@ -42,7 +42,7 @@ runs:
     - ${{ inputs.aws-access-key-id }} # $2
     - ${{ inputs.aws-secret-access-key }} # $3
     - ${{ inputs.docker-image-repository }} # $4
-    - ${{ inputs.docker-image-tag }} # $5
+    - ${{ inputs.docker-image-digest }} # $5
     - ${{ inputs.gh-username }} # $6
     - ${{ inputs.gh-access-token }} # $7
 branding:
