@@ -6,8 +6,9 @@ AWS_ACCESS_KEY_ID=$2
 AWS_SECRET_ACCESS_KEY=$3
 DOCKER_IMAGE_REPO=$4
 DOCKER_IMAGE_DIGEST=$5
-GH_USER=$6
-GH_PAT=$7
+DOCKER_IMAGE_ACCESS_TOKEN=$6
+GH_USER=$7
+GH_PAT=$8
 
 APP_NAME=`echo $GITHUB_REPOSITORY | cut -d'/' -f 2`
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
@@ -71,9 +72,18 @@ argocd cluster add $CONTEXT_NAME
 # If there are multiple clusters, need to pick the right one
 export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 
+
+
+# Create namespace for the app
+echo "Creating app namespace: $APP_NAME"
+kubectl create namespace $APP_NAME
+
+# Ensure sufficient permissions for reading image
+kubectl create secret -n $APP_NAME docker-registry image-pull-secret --docker-username=argonautdev --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=suryaoruganti@gmail.com --docker-server=ghcr.io
+### TODO: Update pod deployment spec to have imagePullSecrets
+
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
-kubectl create namespace $APP_NAME
 
 argocd app create "$APP_NAME-release" --repo https://github.com/$GITHUB_REPOSITORY.git --path helm-config --dest-server $CLUSTER_SERVER --dest-namespace $APP_NAME --auto-prune --sync-policy automated
 argocd app sync "$APP_NAME-release"

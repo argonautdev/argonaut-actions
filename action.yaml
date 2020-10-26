@@ -43,8 +43,9 @@ runs:
     - ${{ inputs.aws-secret-access-key }} # $3
     - ${{ inputs.docker-image-repository }} # $4
     - ${{ inputs.docker-image-digest }} # $5
-    - ${{ inputs.gh-username }} # $6
-    - ${{ inputs.gh-access-token }} # $7
+    - ${{ inputs.docker-image-access-token }} # $6
+    - ${{ inputs.gh-username }} # $7
+    - ${{ inputs.gh-access-token }} # $8
 branding:
   icon: "server"
   color: "purple"
