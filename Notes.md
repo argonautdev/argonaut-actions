@@ -102,6 +102,10 @@ kubectl create secret docker-registry regsecret --docker-server=ghcr.io --docker
    `istioctl dashboard grafana`
    `istioctl dashboard kiali`
 
+## Helm
+
+Fill values into templates using `helm template . > _dryrun.yaml`
+
 ---
 
 # Notes

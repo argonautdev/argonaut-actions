@@ -20,8 +20,7 @@ metadata:
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
     app: "myappname"
-  annotations:
-    {}
+  annotations: {}
 spec:
   type: LoadBalancer
   selector:
@@ -29,9 +28,9 @@ spec:
     chart: "argonaut-configs"
     app: "myappname"
   ports:
-  - name: http
-    protocol: TCP
-    port: 80
+    - name: http
+      protocol: TCP
+      port: 80
 
 # ---
 # kind: Service
@@ -65,8 +64,8 @@ metadata:
   name: myappname
   labels:
     heritage: "Helm"
-    release: "RELEASE-NAME"
     chart: "argonaut-configs"
+    release: "RELEASE-NAME"
     app: "myappname"
 spec:
   replicas: 3
@@ -74,31 +73,32 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
+      chart: "argonaut-configs"
       app: "myappname"
       release: "RELEASE-NAME"
   template:
     metadata:
       labels:
+        heritage: "Helm"
+        chart: "argonaut-configs"
         app: "myappname"
         release: "RELEASE-NAME"
       annotations:
-        
+
     spec:
-      securityContext:
-        {}
+      securityContext: {}
       volumes:
       containers:
-      - name: "argonaut-configs"
-        securityContext:
-          {}
-        image: "nginx:latest"
-        imagePullPolicy: "IfNotPresent"
-        env:
-        resources:
-          limits:
-            cpu: 200m
-            memory: 256M
-          requests:
-            cpu: 200m
-            memory: 256M
-        volumeMounts:
+        - name: "argonaut-configs"
+          securityContext: {}
+          image: "nginx:latest"
+          imagePullPolicy: "IfNotPresent"
+          env:
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256M
+            requests:
+              cpu: 200m
+              memory: 256M
+          volumeMounts:

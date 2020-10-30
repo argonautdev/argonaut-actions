@@ -4,8 +4,8 @@ metadata:
   name: {{ template "argonaut-deployment.uname" . }}
   labels:
     heritage: {{ .Release.Service | quote }}
-    release: {{ .Release.Name | quote }}
     chart: "{{ .Chart.Name }}"
+    release: {{ .Release.Name | quote }}
     app: "{{ template "argonaut-deployment.uname" . }}"
     {{- range $key, $value := .Values.labels }}
     {{ $key }}: {{ $value | quote }}
@@ -16,11 +16,14 @@ spec:
     type: {{ .Values.updateStrategy }}
   selector:
     matchLabels:
+      chart: "{{ .Chart.Name }}"
       app: "{{ template "argonaut-deployment.uname" . }}"
       release: {{ .Release.Name | quote }}
   template:
     metadata:
       labels:
+        heritage: {{ .Release.Service | quote }}
+        chart: "{{ .Chart.Name }}"
         app: "{{ template "argonaut-deployment.uname" . }}"
         release: {{ .Release.Name | quote }}
         {{- range $key, $value := .Values.labels }}
