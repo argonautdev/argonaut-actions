@@ -81,6 +81,7 @@ kubectl create namespace $APP_NAME
 # Ensure sufficient permissions for reading image
 kubectl create secret -n $APP_NAME docker-registry image-pull-secret --docker-username=argonautdev --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=suryaoruganti@gmail.com --docker-server=ghcr.io
 ### TODO: Update pod deployment spec to have imagePullSecrets
+### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
@@ -109,7 +110,7 @@ cat values.yaml
 
 echo "Git commit of new image (excluding tmp files)"
 git add values.yaml
-git commit -m '[skip ci] Argonaut updated the image digest'
+git commit -m '[skip ci] Updated the image digest'
 export BRANCH_NAME=${GITHUB_REF#refs/heads/}
 git push origin $BRANCH_NAME
 
