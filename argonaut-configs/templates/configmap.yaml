@@ -1,0 +1,13 @@
+{{- if .Values.extraConfig }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "argonaut-deployment.uname" . }}-config
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}"
+    app: "{{ template "argonaut-deployment.uname" . }}"
+data:
+{{ toYaml .Values.extraConfig | indent 2 }}
+  {{- end }}

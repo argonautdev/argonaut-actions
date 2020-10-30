@@ -1,0 +1,243 @@
+---
+# Source: argonaut-configs/templates/poddisruptionbudget.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "myappname-pdb"
+spec:
+  maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: "myappname"
+---
+# Source: argonaut-configs/templates/service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: myappname
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  selector:
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+  ports:
+  - name: http
+    protocol: TCP
+    port: 9200
+  - name: transport
+    protocol: TCP
+    port: 9300
+
+# ---
+# kind: Service
+# apiVersion: v1
+# metadata:
+#   name: myappname-headless
+#   labels:
+#     heritage: "Helm"
+#     release: "RELEASE-NAME"
+#     chart: "argonaut-configs"
+#     app: "myappname"
+#
+#   annotations:
+#     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+# spec:
+#   clusterIP: None # This is needed for statefulset hostnames like elasticsearch-0 to resolve
+#   # Create endpoints also if the related pod isn't ready
+#   publishNotReadyAddresses: true
+#   selector:
+#     app: "myappname"
+#   ports:
+#   - name: http
+#     port: 9200
+#   - name: transport
+#     port: 9300
+---
+# Source: argonaut-configs/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myappname
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+spec:
+  replicas: 3
+  strategy:
+    RollingUpdate
+  selector:
+    matchLabels:
+      app: argonaut-configs
+      release: "RELEASE-NAME"
+  template:
+    metadata:
+      labels:
+        app: argonaut-configs
+        release: "RELEASE-NAME"
+      annotations:
+        
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      containers:
+      - name: "argonaut-configs"
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 1000
+        image: "gcr.io/heptio-images/ks-guestbook-demo:latest"
+        imagePullPolicy: "IfNotPresent"
+        env:
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 3
+          timeoutSeconds: 5
+          exec:
+            command:
+              - sh
+              - -c
+              - |
+                #!/usr/bin/env bash -e
+                curl -L ""
+        ports:
+        - containerPort: 9200
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256M
+          requests:
+            cpu: 200m
+            memory: 256M
+        volumeMounts:
+---
+# Source: argonaut-configs/templates/statefulset.yaml
+apiVersion: v1
+kind: StatefulSet
+metadata:
+  name: myappname
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+  annotations:
+    {}
+spec:
+  serviceName: myappname-headless
+  selector:
+    matchLabels:
+      app: "myappname"
+  replicas: 3
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      name: myappname
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 600M
+      storageClassName: standard
+  template:
+    metadata:
+      name: "myappname"
+      labels:
+        heritage: "Helm"
+        release: "RELEASE-NAME"
+        chart: "argonaut-configs"
+        app: "myappname"
+      annotations:
+        
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - "myappname"
+      terminationGracePeriodSeconds: 120
+      volumes:
+      enableServiceLinks: 
+      initContainers:
+      - name: configure-sysctl
+        securityContext:
+          runAsUser: 0
+          privileged: true
+        image: "gcr.io/heptio-images/ks-guestbook-demo:latest"  # TODO: TO BE REPLACED WITH initContainer imageName
+        imagePullPolicy: "IfNotPresent"
+        command: [echo I am an initContainer]  # TODO: TO BE TESTED
+        resources:
+          {}
+
+      containers:
+      - name: "argonaut-configs"
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 1000
+        image: "gcr.io/heptio-images/ks-guestbook-demo:latest"
+        imagePullPolicy: "IfNotPresent"
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - |
+                #!/usr/bin/env bash -e
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 3
+          timeoutSeconds: 5
+        ports:
+        - name: http
+          containerPort: 9200
+        - name: transport
+          containerPort: 9300
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256M
+          requests:
+            cpu: 200m
+            memory: 256M
+        env:
+        volumeMounts:
+          - name: "myappname"
+            mountPath: /usr/share/"myappname"/data
