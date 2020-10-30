@@ -22,13 +22,10 @@ spec:
   ports:
   - name: {{ .Values.service.httpPortName | default "http" }}
     protocol: TCP
-    port: {{ .Values.httpPort }}
+    port: {{ .Values.service.httpPort }}
 {{- if .Values.service.nodePort }}
     nodePort: {{ .Values.service.nodePort }}
 {{- end }}
-  - name: {{ .Values.service.transportPortName | default "transport" }}
-    protocol: TCP
-    port: {{ .Values.transportPort }}
 {{- if .Values.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.service.loadBalancerIP }}
 {{- end }}
@@ -63,6 +60,6 @@ spec:
 #     app: "{{ template "argonaut-deployment.uname" . }}"
 #   ports:
 #   - name: {{ .Values.service.httpPortName | default "http" }}
-#     port: {{ .Values.httpPort }}
+#     port: {{ .Values.service.httpPort }}
 #   - name: {{ .Values.service.transportPortName | default "transport" }}
 #     port: {{ .Values.transportPort }}

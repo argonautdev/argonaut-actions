@@ -13,15 +13,15 @@ metadata:
 spec:
   replicas: {{ .Values.replicas }}
   strategy:
-{{ toYaml .Values.updateStrategy | indent 4 }}
+    type: {{ .Values.updateStrategy }}
   selector:
     matchLabels:
-      app: {{ .Chart.Name }}
+      app: "{{ template "argonaut-deployment.uname" . }}"
       release: {{ .Release.Name | quote }}
   template:
     metadata:
       labels:
-        app: {{ .Chart.Name }}
+        app: "{{ template "argonaut-deployment.uname" . }}"
         release: {{ .Release.Name | quote }}
         {{- range $key, $value := .Values.labels }}
         {{ $key }}: {{ $value | quote }}
@@ -71,15 +71,8 @@ spec:
 {{ toYaml .Values.imagePullSecrets | indent 8 }}
     {{- end }}
       {{- if .Values.extraInitContainers }}
-      # Currently some extra blocks accept strings
-      # to continue with backwards compatibility this is being kept
-      # whilst also allowing for yaml to be specified too.
       initContainers:
-      {{- if eq "string" (printf "%T" .Values.extraInitContainers) }}
-{{ tpl .Values.extraInitContainers . | indent 6 }}
-      {{- else }}
 {{ toYaml .Values.extraInitContainers | indent 6 }}
-      {{- end }}
       {{- end }}
       containers:
       - name: "{{ template "argonaut-deployment.name" . }}"
@@ -95,17 +88,10 @@ spec:
         envFrom:
 {{ toYaml .Values.envFrom | indent 10 }}
 {{- end }}
+{{- if .Values.readinessProbe }}
         readinessProbe:
 {{ toYaml .Values.readinessProbe | indent 10 }}
-          exec:
-            command:
-              - sh
-              - -c
-              - |
-                #!/usr/bin/env bash -e
-                curl -L "{{ .Values.healthCheckPath }}"
-        ports:
-        - containerPort: {{ .Values.httpPort }}
+{{- end }}
 {{- if .Values.lifecycle }}
         lifecycle:
 {{ toYaml .Values.lifecycle | indent 10 }}

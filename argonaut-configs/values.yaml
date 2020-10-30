@@ -30,7 +30,7 @@ secretMounts: []
 #    path: /usr/share/myapp/config/certs
 #    defaultMode: 0755
 
-image: "gcr.io/heptio-images/ks-guestbook-demo"
+image: "nginx"
 imageTag: "latest"
 imageDigest: ""
 imagePullPolicy: "IfNotPresent"
@@ -150,18 +150,15 @@ nodeAffinity: {}
 # the same time when bootstrapping the cluster
 podManagementPolicy: "Parallel"
 
-protocol: http
-httpPort: 9200
-transportPort: 9300
-
 service:
   labels: {}
   labelsHeadless: {}
-  type: ClusterIP
+  type: LoadBalancer
   nodePort: ""
   annotations: {}
+  protocol: http
   httpPortName: http
-  transportPortName: transport
+  httpPort: 80
   loadBalancerIP: ""
   loadBalancerSourceRanges: []
   externalTrafficPolicy: ""
@@ -174,16 +171,18 @@ updateStrategy: RollingUpdate
 maxUnavailable: 25%
 
 podSecurityContext:
-  fsGroup: 1000
-  runAsUser: 1000
+  {}
+  # fsGroup: 1000
+  # runAsUser: 1000
 
 securityContext:
-  capabilities:
-    drop:
-      - ALL
-  # readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  runAsUser: 1000
+  {}
+  # capabilities:
+  #   drop:
+  #     - ALL
+  # # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
 
 # How long to wait for myapp/myapp to stop gracefully
 terminationGracePeriod: 120
@@ -204,10 +203,13 @@ livenessProbe:
   periodSeconds: 10
   timeoutSeconds: 5
 
+# Can only do one of the httpGet and exec handler methods for readinessProbe
 readinessProbe:
-  httpGet:
-    path: /
-    port: http
+  # # Handler 1
+  # httpGet:
+  #   path: /
+  #   port: http
+  # # Handler 2
   # exec:
   #   command:
   #     - sh
@@ -215,13 +217,14 @@ readinessProbe:
   #     - |
   #       #!/usr/bin/env bash -e
   #       curl --fail localhost:80
-  failureThreshold: 3
-  initialDelaySeconds: 10
-  successThreshold: 3
-  periodSeconds: 10
-  timeoutSeconds: 5
+  # # Common fields
+  # failureThreshold: 3
+  # initialDelaySeconds: 10
+  # successThreshold: 3
+  # periodSeconds: 10
+  # timeoutSeconds: 5
 
-clusterHealthCheckParams: "wait_for_status=green&timeout=1s"
+# clusterHealthCheckParams: "wait_for_status=green&timeout=1s"
 
 ## Use an alternate scheduler.
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
