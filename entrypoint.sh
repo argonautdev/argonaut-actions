@@ -104,7 +104,9 @@ chmod a+x $ARGONAUT_WORKSPACE/bin/yq
 
 yq w -i values.yaml image.repository $DOCKER_IMAGE_REPO
 yq w -i values.yaml image.tag $DOCKER_IMAGE_DIGEST
-yq w -i values.yaml image.name "$DOCKER_IMAGE_REPO@$DOCKER_IMAGE_DIGEST"
+# yq w -i values.yaml image.name "$DOCKER_IMAGE_REPO@$DOCKER_IMAGE_DIGEST"
+# Hardcode for demo
+yq w -i values.yaml image.name "nginx:latest"
 echo "Updated values file digest"
 cat values.yaml
 

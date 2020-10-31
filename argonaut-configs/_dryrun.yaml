@@ -20,7 +20,8 @@ metadata:
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
     app: "myappname"
-  annotations: {}
+  annotations:
+    {}
 spec:
   type: LoadBalancer
   selector:
@@ -28,9 +29,9 @@ spec:
     chart: "argonaut-configs"
     app: "myappname"
   ports:
-    - name: http
-      protocol: TCP
-      port: 80
+  - name: http
+    protocol: TCP
+    port: 80
 
 # ---
 # kind: Service
@@ -84,21 +85,32 @@ spec:
         app: "myappname"
         release: "RELEASE-NAME"
       annotations:
-
+        
     spec:
-      securityContext: {}
+      securityContext:
+        {}
       volumes:
       containers:
-        - name: "argonaut-configs"
-          securityContext: {}
-          image: "nginx:latest"
-          imagePullPolicy: "IfNotPresent"
-          env:
-          resources:
-            limits:
-              cpu: 200m
-              memory: 256M
-            requests:
-              cpu: 200m
-              memory: 256M
-          volumeMounts:
+      - name: "argonaut-configs"
+        securityContext:
+          {}
+        image: "nginx:latest"
+        imagePullPolicy: "IfNotPresent"
+        env:
+        readinessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 3
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256M
+          requests:
+            cpu: 200m
+            memory: 256M
+        volumeMounts:

@@ -156,12 +156,13 @@ service:
   type: LoadBalancer
   nodePort: ""
   annotations: {}
-  protocol: http
-  httpPortName: http
-  httpPort: 80
   loadBalancerIP: ""
   loadBalancerSourceRanges: []
   externalTrafficPolicy: ""
+  # To be generalized into ports yaml that can be directly imported
+  protocol: http
+  httpPortName: http
+  httpPort: 80
 
 updateStrategy: RollingUpdate
 
@@ -184,7 +185,7 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
-# How long to wait for myapp/myapp to stop gracefully
+# How long to wait for myapp to stop gracefully
 terminationGracePeriod: 120
 
 livenessProbe:
@@ -198,7 +199,7 @@ livenessProbe:
   #     - |
   #       #!/usr/bin/env bash -e
   #       curl --fail 127.0.0.1:5066
-  failureThreshold: 3
+  failureThreshold: 5
   initialDelaySeconds: 10
   periodSeconds: 10
   timeoutSeconds: 5
@@ -206,9 +207,9 @@ livenessProbe:
 # Can only do one of the httpGet and exec handler methods for readinessProbe
 readinessProbe:
   # # Handler 1
-  # httpGet:
-  #   path: /
-  #   port: http
+  httpGet:
+    path: /
+    port: http
   # # Handler 2
   # exec:
   #   command:
@@ -217,12 +218,12 @@ readinessProbe:
   #     - |
   #       #!/usr/bin/env bash -e
   #       curl --fail localhost:80
-  # # Common fields
-  # failureThreshold: 3
-  # initialDelaySeconds: 10
-  # successThreshold: 3
-  # periodSeconds: 10
-  # timeoutSeconds: 5
+  # Common fields
+  failureThreshold: 5
+  initialDelaySeconds: 10
+  successThreshold: 3
+  periodSeconds: 10
+  timeoutSeconds: 5
 
 # clusterHealthCheckParams: "wait_for_status=green&timeout=1s"
 
