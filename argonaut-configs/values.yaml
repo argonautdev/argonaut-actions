@@ -209,7 +209,7 @@ readinessProbe:
   # # Handler 1
   httpGet:
     path: /
-    port: http
+    port: 80
   # # Handler 2
   # exec:
   #   command:
