@@ -92,7 +92,7 @@ kubectl create secret docker-registry regsecret --docker-server=ghcr.io --docker
 # ISTIO setup and addons
 
 1. install istioctl
-   `istioctl install --profile=demo`
+   `istioctl install --set profile=demo`
 2. install prometheus, kiali etc from istioctl download package
    `curl -L https://istio.io/downloadIstio | sh -`
 3. `kubectl create ns dev`
