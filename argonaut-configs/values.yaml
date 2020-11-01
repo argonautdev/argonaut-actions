@@ -30,7 +30,7 @@ secretMounts: []
 #    path: /usr/share/myapp/config/certs
 #    defaultMode: 0755
 
-image: "nginx"
+image: "wordpress"
 imageTag: "latest"
 imageDigest: ""
 imagePullPolicy: "IfNotPresent"
