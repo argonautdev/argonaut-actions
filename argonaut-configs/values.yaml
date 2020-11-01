@@ -1,7 +1,7 @@
 ---
 clusterName: "myappname"
 
-replicas: 3
+replicas: 1
 
 # Allows you to add any config files in /usr/share/myapp/config/
 # as a ConfigMap
@@ -43,9 +43,9 @@ podAnnotations:
 labels: {}
 
 resources:
-  requests:
-    cpu: "200m"
-    memory: "256M"
+  # requests:
+  #   cpu: "200m"
+  #   memory: "256M"
   limits:
     cpu: "200m"
     memory: "256M"
