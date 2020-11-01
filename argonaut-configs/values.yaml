@@ -1,18 +1,12 @@
 ---
-clusterName: "myappname"
+appName: "myappname"
 
-replicas: 1
+image: "wordpress"
+imageTag: "latest"
+imageDigest: ""
+imagePullPolicy: "IfNotPresent"
 
-# Allows you to add any config files in /usr/share/myapp/config/
-# as a ConfigMap
-extraConfig: {}
-
-# Extra environment variables to append to this nodeGroup
-# This will be appended to the current 'env:' key. You can use any of the kubernetes env
-# syntax here
-extraEnvs: []
-#  - name: MY_ENVIRONMENT_VAR
-#    value: the_value_goes_here
+replicas: 2
 
 # Allows you to load environment variables from kubernetes secret or config map
 envFrom: []
@@ -30,10 +24,7 @@ secretMounts: []
 #    path: /usr/share/myapp/config/certs
 #    defaultMode: 0755
 
-image: "wordpress"
-imageTag: "latest"
-imageDigest: ""
-imagePullPolicy: "IfNotPresent"
+keystore: []
 
 podAnnotations:
   {}
@@ -49,15 +40,6 @@ resources:
   limits:
     cpu: "200m"
     memory: "256M"
-
-initResources:
-  {}
-  # limits:
-  #   cpu: "25m"
-  #   # memory: "128Mi"
-  # requests:
-  #   cpu: "25m"
-  #   memory: "128Mi"
 
 sidecarResources:
   {}
@@ -101,34 +83,12 @@ podSecurityPolicy:
       - persistentVolumeClaim
 
 persistence:
-  enabled: true
-  labels:
-    # Add default labels for the volumeClaimTemplate fo the StatefulSet
-    enabled: false
+  enabled: false
+  labels: {}
   annotations: {}
-
-extraVolumes:
-  []
-  # - name: extras
-  #   emptyDir: {}
-
-extraVolumeMounts:
-  []
-  # - name: extras
-  #   mountPath: /usr/share/extras
-  #   readOnly: true
-
-extraContainers:
-  []
-  # - name: do-something
-  #   image: busybox
-  #   command: ['do', 'something']
-
-extraInitContainers:
-  []
-  # - name: do-something
-  #   image: busybox
-  #   command: ['do', 'something']
+  volumeMounts:
+    - name: "appVolumeMount"
+      mountPath: "/usr/share/myapp/data"
 
 # This is the PriorityClass settings as defined in
 # https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -265,7 +225,49 @@ lifecycle:
   #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
 
 initContainer:
-  enabled: true
+  enabled: false
   command: ["echo", "I am an initContainer"]
+  image: nginx
 
-keystore: []
+initResources:
+  {}
+  # limits:
+  #   cpu: "25m"
+  #   # memory: "128Mi"
+  # requests:
+  #   cpu: "25m"
+  #   memory: "128Mi"
+
+extraInitContainers:
+  []
+  # - name: do-something
+  #   image: busybox
+  #   command: ['do', 'something']
+
+extraVolumes:
+  []
+  # - name: extras
+  #   emptyDir: {}
+
+extraVolumeMounts:
+  []
+  # - name: extras
+  #   mountPath: /usr/share/extras
+  #   readOnly: true
+
+extraContainers:
+  []
+  # - name: do-something
+  #   image: busybox
+  #   command: ['do', 'something']
+
+# Allows you to add any config files in /usr/share/myapp/config/
+# as a ConfigMap
+extraConfig: {}
+
+# Extra environment variables to append to this nodeGroup
+# This will be appended to the current 'env:' key. You can use any of the kubernetes env
+# syntax here
+extraEnvs: []
+#  - name: MY_ENVIRONMENT_VAR
+#    value: the_value_goes_here

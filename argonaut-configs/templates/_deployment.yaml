@@ -30,9 +30,9 @@ spec:
         {{ $key }}: {{ $value | quote }}
         {{- end }}
       annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
+        {{- range $key, $value := .Values.podAnnotations -}}
         {{ $key }}: {{ $value | quote }}
-        {{- end }}
+        {{- end -}}
         {{/* This forces a restart if the configmap has changed */}}
         {{- if .Values.extraConfig }}
         configchecksum: {{ include (print .Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
@@ -84,9 +84,7 @@ spec:
         image: "{{ template "argonaut-deployment.imageName" . }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
         env:
-{{- if .Values.extraEnvs }}
 {{ toYaml .Values.extraEnvs | indent 10 }}
-{{- end }}
 {{- if .Values.envFrom }}
         envFrom:
 {{ toYaml .Values.envFrom | indent 10 }}

@@ -58,59 +58,81 @@ spec:
 #   - name: transport
 #     port:
 ---
-# Source: argonaut-configs/templates/deployment.yaml
+# Source: argonaut-configs/templates/statefulset.yaml
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: myappname
   labels:
     heritage: "Helm"
-    chart: "argonaut-configs"
     release: "RELEASE-NAME"
+    chart: "argonaut-configs"
     app: "myappname"
+  annotations:
+    {}
 spec:
-  replicas: 3
-  strategy:
-    type: RollingUpdate
+  serviceName: myappname-headless
   selector:
     matchLabels:
-      chart: "argonaut-configs"
       app: "myappname"
-      release: "RELEASE-NAME"
+  replicas: 2
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
   template:
     metadata:
+      name: "myappname"
       labels:
         heritage: "Helm"
+        release: "RELEASE-NAME"
         chart: "argonaut-configs"
         app: "myappname"
-        release: "RELEASE-NAME"
       annotations:
         
     spec:
       securityContext:
         {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - "myappname"
+      terminationGracePeriodSeconds: 120
+      # Mount Secrets
       volumes:
+      # Persistence Enabled - volume mounts
+      # extraConfig
+      initContainers:
+
       containers:
       - name: "argonaut-configs"
         securityContext:
           {}
-        image: "nginx:latest"
+        image: "wordpress:latest"
         imagePullPolicy: "IfNotPresent"
-        env:
         readinessProbe:
           failureThreshold: 5
           httpGet:
             path: /
-            port: http
+            port: 80
           initialDelaySeconds: 10
           periodSeconds: 10
           successThreshold: 3
           timeoutSeconds: 5
+        ports:
+        - name: http
+          containerPort: 80
         resources:
           limits:
             cpu: 200m
             memory: 256M
-          requests:
-            cpu: 200m
-            memory: 256M
-        volumeMounts:
+        env:
+        # initContainer volume mount needs to be enabled in the template
+        volumeMounts: []
