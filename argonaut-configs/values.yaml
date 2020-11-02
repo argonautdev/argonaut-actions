@@ -1,7 +1,7 @@
 ---
 appName: "myappname"
 
-image: "wordpress"
+image: "mysql"
 imageTag: "latest"
 imageDigest: ""
 imagePullPolicy: "IfNotPresent"
@@ -28,7 +28,7 @@ keystore: []
 
 podAnnotations:
   {}
-  # iam.amazonaws.com/role: es-cluster
+  # iam.amazonaws.com/role: myapp-cluster
 
 # additionals labels
 labels: {}
