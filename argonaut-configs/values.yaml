@@ -1,7 +1,7 @@
 ---
 appName: "myappname"
 
-image: "mysql"
+image: "wordpress"
 imageTag: "latest"
 imageDigest: ""
 imagePullPolicy: "IfNotPresent"
@@ -149,41 +149,41 @@ securityContext:
 terminationGracePeriod: 120
 
 livenessProbe:
-  # httpGet:
-  #   path: /
-  #   port: http
-  # # exec:
-  # #   command:
-  # #     - sh
-  # #     - -c
-  # #     - |
-  # #       #!/usr/bin/env bash -e
-  # #       curl --fail 127.0.0.1:5066
-  # failureThreshold: 5
-  # initialDelaySeconds: 10
-  # periodSeconds: 10
-  # timeoutSeconds: 5
+  httpGet:
+    path: /
+    port: http
+  # exec:
+  #   command:
+  #     - sh
+  #     - -c
+  #     - |
+  #       #!/usr/bin/env bash -e
+  #       curl --fail 127.0.0.1:5066
+  failureThreshold: 5
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
 
 # Can only do one of the httpGet and exec handler methods for readinessProbe
 readinessProbe:
-  # # # Handler 1
-  # httpGet:
-  #   path: /
-  #   port: 80
-  # # # Handler 2
-  # # exec:
-  # #   command:
-  # #     - sh
-  # #     - -c
-  # #     - |
-  # #       #!/usr/bin/env bash -e
-  # #       curl --fail localhost:80
-  # # Common fields
-  # failureThreshold: 5
-  # initialDelaySeconds: 10
-  # successThreshold: 3
-  # periodSeconds: 10
-  # timeoutSeconds: 5
+  # # Handler 1
+  httpGet:
+    path: /
+    port: 80
+  # # Handler 2
+  # exec:
+  #   command:
+  #     - sh
+  #     - -c
+  #     - |
+  #       #!/usr/bin/env bash -e
+  #       curl --fail localhost:80
+  # Common fields
+  failureThreshold: 5
+  initialDelaySeconds: 10
+  successThreshold: 3
+  periodSeconds: 10
+  timeoutSeconds: 5
 
 # clusterHealthCheckParams: "wait_for_status=green&timeout=1s"
 
