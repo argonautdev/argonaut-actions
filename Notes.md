@@ -118,3 +118,7 @@ curl -s "https://raw.githubusercontent.com/\
 kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 mv kustomize ./bin
 ```
+
+# Misc
+
+gateway - afa0ea01bb3114d8f84d27f2f8c25383-213152376.us-east-2.elb.amazonaws.com

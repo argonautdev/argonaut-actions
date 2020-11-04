@@ -23,7 +23,7 @@ metadata:
   annotations:
     {}
 spec:
-  type: LoadBalancer
+  # type: LoadBalancer
   selector:
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
@@ -32,31 +32,6 @@ spec:
   - name: http
     protocol: TCP
     port: 80
-
-# ---
-# kind: Service
-# apiVersion: v1
-# metadata:
-#   name: myappname-headless
-#   labels:
-#     heritage: "Helm"
-#     release: "RELEASE-NAME"
-#     chart: "argonaut-configs"
-#     app: "myappname"
-#
-#   annotations:
-#     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-# spec:
-#   clusterIP: None # This is needed for statefulset hostnames like elasticsearch-0 to resolve
-#   # Create endpoints also if the related pod isn't ready
-#   publishNotReadyAddresses: true
-#   selector:
-#     app: "myappname"
-#   ports:
-#   - name: http
-#     port: 80
-#   - name: transport
-#     port:
 ---
 # Source: argonaut-configs/templates/statefulset.yaml
 apiVersion: apps/v1
@@ -71,7 +46,7 @@ metadata:
   annotations:
     {}
 spec:
-  serviceName: myappname-headless
+  serviceName: myappname
   selector:
     matchLabels:
       app: "myappname"
@@ -129,6 +104,7 @@ spec:
         ports:
         - name: http
           containerPort: 80
+          # protocol: TCP
         resources:
           limits:
             cpu: 200m
@@ -136,3 +112,18 @@ spec:
         env:
         # initContainer volume mount needs to be enabled in the template
         volumeMounts: []
+---
+# Source: argonaut-configs/templates/externalservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: "rds-mysql-external"
+spec:
+  hosts:
+    - database-1.co45pjczxgry.us-east-2.rds.amazonaws.com
+  ports:
+    - name: mysql
+      protocol: TCP
+      number: 3306
+  resolution: NONE # DNS
+  location: MESH_EXTERNAL

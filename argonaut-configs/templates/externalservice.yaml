@@ -1,0 +1,21 @@
+{{- range $index, $value := .Values.externalServices }}
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: "{{- .name }}"
+spec:
+  hosts:
+    {{- range .hosts }}
+    - {{ . }}
+    {{- end }}
+  ports:
+  {{- range .ports }}
+    - name: {{ .name }}
+      protocol: {{ .protocol }}
+      number: {{ .number }}
+  {{- end }}
+  resolution: {{ .resolution }} # DNS
+  location: {{ .location }}
+---
+{{- end }}
+

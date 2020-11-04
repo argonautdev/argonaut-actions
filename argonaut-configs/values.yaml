@@ -1,12 +1,129 @@
 ---
 appName: "myappname"
 
+nameOverride: ""
+
 image: "wordpress"
 imageTag: "latest"
 imageDigest: ""
 imagePullPolicy: "IfNotPresent"
+imagePullSecrets: []
 
 replicas: 2
+resources:
+  # requests:
+  #   cpu: "200m"
+  #   memory: "256M"
+  limits:
+    cpu: "200m"
+    memory: "256M"
+
+persistence:
+  enabled: false
+  labels: {}
+  annotations: {}
+  volumeMounts:
+    - name: "appVolumeMount"
+      mountPath: "/usr/share/myapp/data"
+
+volumeClaimTemplate:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: "standard"
+  resources:
+    requests:
+      storage: "600M"
+
+service:
+  labels: {}
+  type: LoadBalancer
+  annotations: {}
+  # nodePort: ""
+  # loadBalancerIP: ""
+  # loadBalancerSourceRanges: []
+  externalTrafficPolicy: ""
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+
+externalServices:
+  - name: rds-mysql-external
+    hosts:
+      - database-1.co45pjczxgry.us-east-2.rds.amazonaws.com
+    # addresses:
+    #   - 10.10.10.0/24
+    ports:
+      - number: 3306
+        name: mysql
+        protocol: TCP
+      # - number: 443
+      #   name: https
+      #   protocol: HTTPS
+    resolution: NONE # DNS
+    location: MESH_EXTERNAL
+    # tls: Disabled   # TO BE IMPLEMENTED
+
+# The default value of 1 will make sure that kubernetes won't allow more than 1
+# of your pods to be unavailable during maintenance
+maxUnavailable: 25%
+updateStrategy: RollingUpdate
+# How long to wait for myapp to stop gracefully
+terminationGracePeriod: 120
+
+# Enabling this will publically expose your app/service instance.
+# Only enable this if you have security enabled on your cluster
+ingress:
+  enabled: false
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+lifecycle:
+  {}
+  # preStop:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+  # postStart:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+
+# Can only do one of the httpGet and exec handler methods for livenessProbe
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  # exec:
+  #   command:
+  #     - sh
+  failureThreshold: 5
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+# Can only do one of the httpGet and exec handler methods for readinessProbe
+readinessProbe:
+  # # Handler 1
+  httpGet:
+    path: /
+    port: 80
+  # # Handler 2
+  # exec:
+  #   command:
+  #     - sh
+  # Common fields
+  failureThreshold: 5
+  initialDelaySeconds: 10
+  successThreshold: 3
+  periodSeconds: 10
+  timeoutSeconds: 5
 
 # Allows you to load environment variables from kubernetes secret or config map
 envFrom: []
@@ -24,6 +141,8 @@ secretMounts: []
 #    path: /usr/share/myapp/config/certs
 #    defaultMode: 0755
 
+########################################################################################
+
 keystore: []
 
 podAnnotations:
@@ -32,14 +151,6 @@ podAnnotations:
 
 # additionals labels
 labels: {}
-
-resources:
-  # requests:
-  #   cpu: "200m"
-  #   memory: "256M"
-  limits:
-    cpu: "200m"
-    memory: "256M"
 
 sidecarResources:
   {}
@@ -51,13 +162,6 @@ sidecarResources:
   #   memory: "128Mi"
 
 # networkHost: "0.0.0.0"
-
-volumeClaimTemplate:
-  accessModes: ["ReadWriteOnce"]
-  storageClassName: "standard"
-  resources:
-    requests:
-      storage: "600M"
 
 rbac:
   create: false
@@ -82,14 +186,6 @@ podSecurityPolicy:
       - configMap
       - persistentVolumeClaim
 
-persistence:
-  enabled: false
-  labels: {}
-  annotations: {}
-  volumeMounts:
-    - name: "appVolumeMount"
-      mountPath: "/usr/share/myapp/data"
-
 # This is the PriorityClass settings as defined in
 # https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
 priorityClassName: ""
@@ -110,27 +206,6 @@ nodeAffinity: {}
 # the same time when bootstrapping the cluster
 podManagementPolicy: "Parallel"
 
-service:
-  labels: {}
-  labelsHeadless: {}
-  type: LoadBalancer
-  nodePort: ""
-  annotations: {}
-  loadBalancerIP: ""
-  loadBalancerSourceRanges: []
-  externalTrafficPolicy: ""
-  # To be generalized into ports yaml that can be directly imported
-  protocol: http
-  httpPortName: http
-  httpPort: 80
-
-updateStrategy: RollingUpdate
-
-# This is the max unavailable setting for the pod disruption budget
-# The default value of 1 will make sure that kubernetes won't allow more than 1
-# of your pods to be unavailable during maintenance
-maxUnavailable: 25%
-
 podSecurityContext:
   {}
   # fsGroup: 1000
@@ -145,89 +220,18 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
-# How long to wait for myapp to stop gracefully
-terminationGracePeriod: 120
-
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-  # exec:
-  #   command:
-  #     - sh
-  #     - -c
-  #     - |
-  #       #!/usr/bin/env bash -e
-  #       curl --fail 127.0.0.1:5066
-  failureThreshold: 5
-  initialDelaySeconds: 10
-  periodSeconds: 10
-  timeoutSeconds: 5
-
-# Can only do one of the httpGet and exec handler methods for readinessProbe
-readinessProbe:
-  # # Handler 1
-  httpGet:
-    path: /
-    port: 80
-  # # Handler 2
-  # exec:
-  #   command:
-  #     - sh
-  #     - -c
-  #     - |
-  #       #!/usr/bin/env bash -e
-  #       curl --fail localhost:80
-  # Common fields
-  failureThreshold: 5
-  initialDelaySeconds: 10
-  successThreshold: 3
-  periodSeconds: 10
-  timeoutSeconds: 5
-
-# clusterHealthCheckParams: "wait_for_status=green&timeout=1s"
-
 ## Use an alternate scheduler.
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
 ##
 schedulerName: ""
 
-imagePullSecrets: []
 nodeSelector: {}
 tolerations: []
 
-# Enabling this will publically expose your app/service instance.
-# Only enable this if you have security enabled on your cluster
-ingress:
-  enabled: false
-  annotations:
-    {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  path: /
-  hosts:
-    - chart-example.local
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-nameOverride: ""
-fullnameOverride: ""
-
-lifecycle:
-  {}
-  # preStop:
-  #   exec:
-  #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
-  # postStart:
-  #   exec:
-  #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
-
 initContainer:
   enabled: false
-  command: ["echo", "I am an initContainer"]
-  image: nginx
+  # command: ["echo", "I am an initContainer"]
+  # image: nginx
 
 initResources:
   {}

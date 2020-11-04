@@ -10,7 +10,7 @@ spec:
             memory: 512Mi # ... default 2048Mi
     egressGateways:
       - name: istio-egressgateway
-        enabled: true
+        enabled: false
   meshConfig:
     accessLogFile: /dev/stdout
     outboundTrafficPolicy:

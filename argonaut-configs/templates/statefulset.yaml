@@ -14,7 +14,7 @@ metadata:
   annotations:
     {}
 spec:
-  serviceName: {{ template "argonaut-deployment.uname" . }}-headless
+  serviceName: {{ template "argonaut-deployment.uname" . }}
   selector:
     matchLabels:
       app: "{{ template "argonaut-deployment.uname" . }}"
@@ -130,7 +130,7 @@ spec:
         {{- if .Values.persistence.enabled }}
         {{- range $index, $volumeMount := .Values.persistence.volumeMounts }}
         - name: "{{ $volumeMount.name }}"
-          mountPath: "{{ $volumeMount.mountPath }}"
+          # mountPath: "{{ $volumeMount.mountPath }}"
         {{ end }}
         {{ end }}
       # extraConfig
@@ -200,8 +200,11 @@ spec:
         readinessProbe:
 {{ toYaml .Values.readinessProbe | indent 10 }}
         ports:
-        - name: http
-          containerPort: {{ .Values.service.httpPort }}
+        {{- range .Values.service.ports }}
+        - name: {{ .name }}
+          containerPort: {{ .port }}
+          # protocol: {{ .protocol }}
+        {{- end }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         env:

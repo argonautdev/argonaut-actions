@@ -33,10 +33,10 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "argonaut-deployment.uname" -}}
-{{- if empty .Values.fullnameOverride -}}
+{{- if empty .Values.nameOverride -}}
 {{ .Values.appName }}
 {{- else -}}
-{{ .Values.fullnameOverride }}
+{{ .Values.nameOverride }}
 {{- end -}}
 {{- end -}}
 

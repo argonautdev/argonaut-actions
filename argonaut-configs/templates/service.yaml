@@ -14,20 +14,19 @@ metadata:
   annotations:
 {{ toYaml .Values.service.annotations | indent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  # type: {{ .Values.service.type }}
   selector:
     release: {{ .Release.Name | quote }}
     chart: "{{ .Chart.Name }}"
     app: "{{ template "argonaut-deployment.uname" . }}"
   ports:
-  - name: {{ .Values.service.httpPortName | default "http" }}
-    protocol: TCP
-    port: {{ .Values.service.httpPort }}
+  {{- range .Values.service.ports }}
+  - name: {{ .name }}
+    protocol: {{ .protocol }}
+    port: {{ .port }}
+  {{- end }}
 {{- if .Values.service.nodePort }}
     nodePort: {{ .Values.service.nodePort }}
-{{- end }}
-{{- if .Values.service.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
 {{- end }}
 {{- with .Values.service.loadBalancerSourceRanges }}
   loadBalancerSourceRanges:
@@ -37,29 +36,4 @@ spec:
   externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
 {{- end }}
 
-# ---
-# kind: Service
-# apiVersion: v1
-# metadata:
-#   name: {{ template "argonaut-deployment.uname" . }}-headless
-#   labels:
-#     heritage: {{ .Release.Service | quote }}
-#     release: {{ .Release.Name | quote }}
-#     chart: "{{ .Chart.Name }}"
-#     app: "{{ template "argonaut-deployment.uname" . }}"
-# {{- if .Values.service.labelsHeadless }}
-# {{ toYaml .Values.service.labelsHeadless | indent 4 }}
-# {{- end }}
-#   annotations:
-#     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-# spec:
-#   clusterIP: None # This is needed for statefulset hostnames like elasticsearch-0 to resolve
-#   # Create endpoints also if the related pod isn't ready
-#   publishNotReadyAddresses: true
-#   selector:
-#     app: "{{ template "argonaut-deployment.uname" . }}"
-#   ports:
-#   - name: {{ .Values.service.httpPortName | default "http" }}
-#     port: {{ .Values.service.httpPort }}
-#   - name: {{ .Values.service.transportPortName | default "transport" }}
-#     port: {{ .Values.transportPort }}
+---
