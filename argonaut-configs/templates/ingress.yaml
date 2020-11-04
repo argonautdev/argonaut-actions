@@ -1,0 +1,70 @@
+{{- $name := include "argonaut-deployment.uname" . -}}
+{{- $chartName := .Chart.Name -}}
+{{- $releaseName := .Release.Name -}}
+{{- $releaseService := .Release.Service -}}
+
+{{- range .Values.services }}
+{{- if .public }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ $name | quote }}
+  labels:
+    heritage: {{ $releaseService | quote }}
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+    app: {{ $name | quote }}
+spec:
+  selector:
+    # app: {{ $name | quote }}
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  {{- range .ports }}
+    - port:
+        name: {{ .name }}
+        protocol: {{ .protocol }}
+        number: {{ .port }}
+      hosts:
+        - "*"
+  {{- end }}
+    # - port:
+    #     number: 443
+    #     name: https
+    #     protocol: HTTPS
+    #   hosts:
+    #     - "*"
+    #   tls:
+    #     mode: SIMPLE
+    #     credentialName: helloworld-credential # either this or cert and key
+    #     serverCertificate: /etc/certs/server.pem
+    #     privateKey: /etc/certs/privatekey.pem
+  
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ $name | quote }}
+  labels:
+    heritage: {{ $releaseService | quote }}
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+    app: {{ $name | quote }}
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - {{ $name | quote }}
+  exportTo:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            port:
+              number: 80
+            host: "{{- $name -}} .dev.svc.cluster.local"
+{{- end }}
+---
+{{- end }}

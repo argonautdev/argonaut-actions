@@ -11,6 +11,7 @@ metadata:
     {{- range $key, $value := .Values.labels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
+    version: {{ .Values.version | default .Release.Revision | quote }}
   annotations:
     {}
 spec:
@@ -200,11 +201,13 @@ spec:
         readinessProbe:
 {{ toYaml .Values.readinessProbe | indent 10 }}
         ports:
-        {{- range .Values.service.ports }}
+        # {{- range .Values.services }}
+        {{- range .ports }}
         - name: {{ .name }}
           containerPort: {{ .port }}
           # protocol: {{ .protocol }}
         {{- end }}
+        # {{- end }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         env:

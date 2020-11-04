@@ -1,0 +1,35 @@
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: myappname
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - myappname
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            port:
+              number: 80
+            host: myappname.dev.svc.cluster.local
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: myappname
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+    - port:
+        name: http
+        protocol: TCP
+        number: 80
+      hosts:
+        - "*"

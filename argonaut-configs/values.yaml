@@ -1,5 +1,6 @@
 ---
 appName: "myappname"
+version: ""
 
 nameOverride: ""
 
@@ -33,18 +34,14 @@ volumeClaimTemplate:
     requests:
       storage: "600M"
 
-service:
-  labels: {}
-  type: LoadBalancer
-  annotations: {}
-  # nodePort: ""
-  # loadBalancerIP: ""
-  # loadBalancerSourceRanges: []
-  externalTrafficPolicy: ""
-  ports:
-    - name: http
-      protocol: TCP
-      port: 80
+services:
+  - labels: {}
+    public: true
+    annotations: {}
+    ports: # TODO: implement path, route, and protocol in virtual service
+      - name: http
+        protocol: TCP
+        port: 80
 
 externalServices:
   - name: rds-mysql-external

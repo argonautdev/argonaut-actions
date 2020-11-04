@@ -1,39 +1,39 @@
----
+{{- $name := include "argonaut-deployment.uname" . -}}
+{{- $chartName := .Chart.Name -}}
+{{- $releaseName := .Release.Name -}}
+{{- $releaseService := .Release.Service -}}
+
+{{- range .Values.services }}
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ template "argonaut-deployment.uname" . }}
+  name: {{ $name | quote }}
   labels:
-    heritage: {{ .Release.Service | quote }}
-    release: {{ .Release.Name | quote }}
-    chart: "{{ .Chart.Name }}"
-    app: "{{ template "argonaut-deployment.uname" . }}"
-{{- if .Values.service.labels }}
-{{ toYaml .Values.service.labels | indent 4}}
+    heritage: {{ $releaseService | quote }}
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+    app: {{ $name | quote }}
+{{- if .labels }}
+{{ toYaml .labels | indent 4 }}
 {{- end }}
   annotations:
-{{ toYaml .Values.service.annotations | indent 4 }}
+    # networking.istio.io/exportTo: "."
+{{- if .annotations }}
+{{ toYaml .annotations | indent 4 }}
+{{- end }}
 spec:
-  # type: {{ .Values.service.type }}
+{{- if not .public }}
+  type: ClusterIP
+{{- end }}
   selector:
-    release: {{ .Release.Name | quote }}
-    chart: "{{ .Chart.Name }}"
-    app: "{{ template "argonaut-deployment.uname" . }}"
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+    app: {{ $name | quote }}
   ports:
-  {{- range .Values.service.ports }}
+  {{- range .ports }}
   - name: {{ .name }}
     protocol: {{ .protocol }}
     port: {{ .port }}
   {{- end }}
-{{- if .Values.service.nodePort }}
-    nodePort: {{ .Values.service.nodePort }}
-{{- end }}
-{{- with .Values.service.loadBalancerSourceRanges }}
-  loadBalancerSourceRanges:
-{{ toYaml . | indent 4 }}
-{{- end }}
-{{- if .Values.service.externalTrafficPolicy }}
-  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
-{{- end }}
-
 ---
+{{- end }}

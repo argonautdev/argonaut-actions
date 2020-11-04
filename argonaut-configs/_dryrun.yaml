@@ -14,16 +14,15 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: myappname
+  name: "myappname"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
     app: "myappname"
   annotations:
-    {}
+    # networking.istio.io/exportTo: "."
 spec:
-  # type: LoadBalancer
   selector:
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
@@ -43,6 +42,7 @@ metadata:
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
     app: "myappname"
+    version: "1"
   annotations:
     {}
 spec:
@@ -102,9 +102,11 @@ spec:
           successThreshold: 3
           timeoutSeconds: 5
         ports:
+        #
         - name: http
           containerPort: 80
           # protocol: TCP
+        #
         resources:
           limits:
             cpu: 200m
@@ -113,11 +115,48 @@ spec:
         # initContainer volume mount needs to be enabled in the template
         volumeMounts: []
 ---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: "myappname"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+spec:
+  selector:
+    # app: "myappname"
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+    - port:
+        name: http
+        protocol: TCP
+        number: 80
+      hosts:
+        - "*"
+    # - port:
+    #     number: 443
+    #     name: https
+    #     protocol: HTTPS
+    #   hosts:
+    #     - "*"
+    #   tls:
+    #     mode: SIMPLE
+    #     credentialName: helloworld-credential # either this or cert and key
+    #     serverCertificate: /etc/certs/server.pem
+    #     privateKey: /etc/certs/privatekey.pem
+---
 # Source: argonaut-configs/templates/externalservice.yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
   name: "rds-mysql-external"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
 spec:
   hosts:
     - database-1.co45pjczxgry.us-east-2.rds.amazonaws.com
@@ -127,3 +166,30 @@ spec:
       number: 3306
   resolution: NONE # DNS
   location: MESH_EXTERNAL
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "myappname"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - "myappname"
+  exportTo:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            port:
+              number: 80
+            host: "myappname.dev.svc.cluster.local"
