@@ -59,9 +59,6 @@ export ARGO_PWD=`kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-ser
 curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v1.7.8/argocd-linux-amd64
 chmod a+x /usr/local/bin/argocd
 
-echo "Sleeping for 20s to give time for argocd resources to be spun up"
-sleep 20s
-
 # Access the argocd operator
 argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
 argocd cluster list
@@ -75,7 +72,6 @@ export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-username=argonautdev --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonauts@argonaut.dev --docker-server=ghcr.io
 ### TODO: Update pod deployment spec to have imagePullSecrets
 ### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
-
 
 # Update docker image with latest tag
 cd $CONFIG_PATH
@@ -92,12 +88,17 @@ echo "Git commit of new image (excluding tmp files)"
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
+echo "Adding repo: git@gitlab.com/$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY"
 argocd repo add git@gitlab.com/$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY
+echo "Creating argo app"
 argocd app create "$APP_NAME-release" --repo "$CI_PROJECT_URL.git" --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated
+echo "Syncing argo app"
 argocd app sync "$APP_NAME-release"
 
 cd ../
-# Get the lay of the land
-pwd
-ls -al
-env
+
+# # Get the lay of the land
+# pwd
+# ls -al
+# env
+echo "Exiting script"
