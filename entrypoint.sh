@@ -7,18 +7,14 @@ AWS_SECRET_ACCESS_KEY=$3
 DOCKER_IMAGE_REPO=$4
 DOCKER_IMAGE_DIGEST=$5
 DOCKER_IMAGE_ACCESS_TOKEN=$6
-GH_USER=$7
-GH_PAT=$8
+GIT_USER=$7
+GIT_PAT=$8
 
 APP_NAME=`echo $GITHUB_REPOSITORY | cut -d'/' -f 2`
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
-CONFIG_PATH=`pwd`/helm-config
+CONFIG_PATH=`pwd`/argonaut-configs
 
 CLUSTER_NAME="shadow"
-
-echo "Heave ho $NAME"
-time=$(date)
-echo "::set-output name=time-now::$time"
 
 # Prep workspace
 mkdir -p $ARGONAUT_WORKSPACE
@@ -94,7 +90,7 @@ cd $CONFIG_PATH
 
 echo "Updating docker image tag - fetch repo"
 apk add --no-cache git
-git remote set-url origin https://${GH_USER}:${GH_PAT}@github.com/$GITHUB_REPOSITORY.git
+git remote set-url origin https://${GIT_USER}:${GIT_PAT}@github.com/$GITHUB_REPOSITORY.git
 git config --global user.email "argonaut@argonaut.dev"
 git config --global user.name "[Argonaut]"
 

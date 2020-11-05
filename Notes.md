@@ -108,6 +108,85 @@ Fill values into templates using `helm template . > _dryrun.yaml`
 
 ---
 
+# ISTIO
+
+istioctl install --set profile=default -f \_onetimesetup/istio-setup.yaml
+kubectl create ns dev
+kubectl label namespace dev istio-injection=enabled
+kubectl create ns monitoring
+
+## Prometheus
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install -n monitoring prometheus prometheus-community/prometheus
+
+```
+The Prometheus server can be accessed via port 80 on the following DNS name from within your cluster:
+prometheus-server.monitoring.svc.cluster.local
+
+
+Get the Prometheus server URL by running these commands in the same shell:
+  export POD_NAME=$(kubectl get pods --namespace monitoring -l "app=prometheus,component=server" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace monitoring port-forward $POD_NAME 9090
+
+
+The Prometheus alertmanager can be accessed via port 80 on the following DNS name from within your cluster:
+prometheus-alertmanager.monitoring.svc.cluster.local
+
+
+Get the Alertmanager URL by running these commands in the same shell:
+  export POD_NAME=$(kubectl get pods --namespace monitoring -l "app=prometheus,component=alertmanager" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace monitoring port-forward $POD_NAME 9093
+#################################################################################
+######   WARNING: Pod Security Policy has been moved to a global property.  #####
+######            use .Values.podSecurityPolicy.enabled with pod-based      #####
+######            annotations                                               #####
+######            (e.g. .Values.nodeExporter.podSecurityPolicy.annotations) #####
+#################################################################################
+
+
+The Prometheus PushGateway can be accessed via port 9091 on the following DNS name from within your cluster:
+prometheus-pushgateway.monitoring.svc.cluster.local
+
+
+Get the PushGateway URL by running these commands in the same shell:
+  export POD_NAME=$(kubectl get pods --namespace monitoring -l "app=prometheus,component=pushgateway" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace monitoring port-forward $POD_NAME 9091
+
+```
+
+### Notes
+
+https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+https://istio.io/latest/docs/ops/best-practices/observability/#using-prometheus-for-production-scale-monitoring
+
+## Grafana
+
+helm repo add grafana https://grafana.github.io/helm-charts
+v7.3.1 (6668161a88)
+
+# Useful charts
+
+https://grafana.com/grafana/dashboards/139
+https://grafana.com/grafana/dashboards/8588
+https://grafana.com/grafana/dashboards/455
+https://grafana.com/grafana/dashboards/707
+
+## Jaeger
+
+helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+helm
+
+### Notes
+
+istio installation requires:
+--set values.global.tracer.zipkin.address=<jaeger-collector-address>:9411
+
+`https://github.com/jaegertracing/helm-charts/tree/master/charts/jaeger` has important notes
+
+---
+
 # Notes
 
 ## SETUP kustomize
@@ -120,5 +199,3 @@ mv kustomize ./bin
 ```
 
 # Misc
-
-gateway - afa0ea01bb3114d8f84d27f2f8c25383-213152376.us-east-2.elb.amazonaws.com

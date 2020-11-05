@@ -44,8 +44,8 @@ runs:
     - ${{ inputs.docker-image-repository }} # $4
     - ${{ inputs.docker-image-digest }} # $5
     - ${{ inputs.docker-image-access-token }} # $6
-    - ${{ inputs.gh-username }} # $7
-    - ${{ inputs.gh-access-token }} # $8
+    - ${{ inputs.git-username }} # $7
+    - ${{ inputs.git-access-token }} # $8
 branding:
   icon: "server"
   color: "purple"
