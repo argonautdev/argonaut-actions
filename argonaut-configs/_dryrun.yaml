@@ -19,9 +19,10 @@ metadata:
     heritage: "Helm"
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
+    version: "v1"
     app: "myappname"
-  annotations:
-    # networking.istio.io/exportTo: "."
+  # annotations:
+  #   networking.istio.io/exportTo: "."
 spec:
   selector:
     release: "RELEASE-NAME"
@@ -29,7 +30,7 @@ spec:
     app: "myappname"
   ports:
   - name: http
-    protocol: TCP
+    protocol: TCP # UDP and SCTP are the other options
     port: 80
 ---
 # Source: argonaut-configs/templates/statefulset.yaml
@@ -42,7 +43,7 @@ metadata:
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
     app: "myappname"
-    version: "1"
+    version: "v1"
   annotations:
     {}
 spec:
@@ -105,7 +106,7 @@ spec:
         #
         - name: http
           containerPort: 80
-          # protocol: TCP
+          # protocol: http
         #
         resources:
           limits:
@@ -125,17 +126,20 @@ metadata:
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
     app: "myappname"
+  # annotations:
+  #   service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-west-2:{act#}:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  #   service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+  #   service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "300"
 spec:
   selector:
-    # app: "myappname"
     istio: ingressgateway # use Istio default gateway implementation
   servers:
     - port:
         name: http
-        protocol: TCP
+        protocol: http
         number: 80
       hosts:
-        - "*"
+        - aws.tritonhq.io
     # - port:
     #     number: 443
     #     name: https
@@ -179,7 +183,7 @@ metadata:
     app: "myappname"
 spec:
   hosts:
-    - "*"
+    - aws.tritonhq.io
   gateways:
     - "myappname"
   exportTo:
@@ -192,4 +196,5 @@ spec:
         - destination:
             port:
               number: 80
-            host: "myappname.dev.svc.cluster.local"
+            host: myappname.dev.svc.cluster.local
+            # host: "myappname.dev.svc.cluster.local"
