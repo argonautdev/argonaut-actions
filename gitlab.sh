@@ -87,13 +87,12 @@ chmod a+x $ARGONAUT_WORKSPACE/bin/yq
 yq w -i values.yaml image $DOCKER_IMAGE
 yq w -i values.yaml imageTag $DOCKER_IMAGE_TAG
 echo "Updated values file tag"
-cat values.yaml
 
 echo "Git commit of new image (excluding tmp files)"
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
-argocd repo add $CI_PROJECT_URL --username $GIT_USER --password $GIT_PAT --insecure-skip-server-verification
+argocd repo add git@gitlab.com/$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY
 argocd app create "$APP_NAME-release" --repo "$CI_PROJECT_URL.git" --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated
 argocd app sync "$APP_NAME-release"
 
