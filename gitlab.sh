@@ -76,11 +76,6 @@ kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-us
 ### TODO: Update pod deployment spec to have imagePullSecrets
 ### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
 
-# Create ArgoCD app release
-echo "Creating ArgoCD app release"
-
-argocd app create "$APP_NAME-release" --repo "$CI_PROJECT_URL.git" --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated
-argocd app sync "$APP_NAME-release"
 
 # Update docker image with latest tag
 cd $CONFIG_PATH
@@ -96,6 +91,11 @@ cat values.yaml
 
 echo "Git commit of new image (excluding tmp files)"
 
+# Create ArgoCD app release
+echo "Creating ArgoCD app release"
+
+argocd app create "$APP_NAME-release" --repo "$CI_PROJECT_URL.git" --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated
+argocd app sync "$APP_NAME-release"
 
 cd ../
 # Get the lay of the land
