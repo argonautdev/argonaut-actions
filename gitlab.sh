@@ -88,8 +88,9 @@ echo "Git commit of new image (excluding tmp files)"
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
-echo "Adding repo: git@gitlab.com/$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY"
-argocd repo add git@gitlab.com/$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY
+echo "Adding repo: git@gitlab.com:$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY"
+# Need to replace : with / for public repos; include retries
+argocd repo add git@gitlab.com:$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY
 echo "Creating argo app"
 argocd app create "$APP_NAME-release" --repo "$CI_PROJECT_URL.git" --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated
 echo "Syncing argo app"
