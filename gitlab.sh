@@ -4,12 +4,12 @@
 ENV_NAME=$1
 AWS_ACCESS_KEY_ID=$2
 AWS_SECRET_ACCESS_KEY=$3
-DOCKER_IMAGE_REPO=$4
-DOCKER_IMAGE_DIGEST=$5
+DOCKER_IMAGE=$4
+DOCKER_IMAGE_TAG=$5
 DOCKER_IMAGE_ACCESS_TOKEN=$6
-GIT_USER=$7
-GIT_PAT=$8
-DOCKER_IMAGE_TAG=$9
+# GIT_USER=$7
+# GIT_PAT=$8
+# DOCKER_IMAGE_DIGEST=$9
 
 CLUSTER_NAME="shadow"
 
@@ -85,25 +85,16 @@ argocd app sync "$APP_NAME-release"
 # Update docker image with latest tag
 cd $CONFIG_PATH
 
-echo "Updating docker image tag - fetch repo"
-apk add --no-cache git
-git remote set-url origin https://${GIT_USER}:${GIT_PAT}@gitlab.com/$CI_PROJECT_PATH.git    # Explore replacement with $CI_REPOSITORY_URL to eliminate dependency on PAT
-git config --global user.email "argonauts@argonaut.dev"
-git config --global user.name "[ArgonautDev]"
-
 # Install yq
 wget -O $ARGONAUT_WORKSPACE/bin/yq "https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64"
 chmod a+x $ARGONAUT_WORKSPACE/bin/yq
 
-yq w -i values.yaml image $DOCKER_IMAGE_REPO
+yq w -i values.yaml image $DOCKER_IMAGE
 yq w -i values.yaml image.tag $DOCKER_IMAGE_TAG
 echo "Updated values file tag"
 cat values.yaml
 
 echo "Git commit of new image (excluding tmp files)"
-git add values.yaml
-git commit -m '[skip ci] Updated the image digest'
-git push origin $CI_COMMIT_REF_NAME
 
 
 cd ../

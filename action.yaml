@@ -41,11 +41,12 @@ runs:
     - ${{ inputs.who-to-greet }} # $1
     - ${{ inputs.aws-access-key-id }} # $2
     - ${{ inputs.aws-secret-access-key }} # $3
-    - ${{ inputs.docker-image-repository }} # $4
-    - ${{ inputs.docker-image-digest }} # $5
+    - ${{ inputs.docker-image }} # $4
+    - ${{ inputs.docker-image-tag }} # $5
     - ${{ inputs.docker-image-access-token }} # $6
     - ${{ inputs.git-username }} # $7
     - ${{ inputs.git-access-token }} # $8
+    - ${{ inputs.docker-image-digest }} # $5
 branding:
   icon: "server"
   color: "purple"
