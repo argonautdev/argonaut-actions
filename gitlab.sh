@@ -7,8 +7,8 @@ AWS_SECRET_ACCESS_KEY=$3
 DOCKER_IMAGE=$4
 DOCKER_IMAGE_TAG=$5
 DOCKER_IMAGE_ACCESS_TOKEN=$6
-# GIT_USER=$7
-# GIT_PAT=$8
+GIT_USER=$7
+GIT_PAT=$8
 # DOCKER_IMAGE_DIGEST=$9
 
 CLUSTER_NAME="shadow"
@@ -85,7 +85,7 @@ wget -O $ARGONAUT_WORKSPACE/bin/yq "https://github.com/mikefarah/yq/releases/dow
 chmod a+x $ARGONAUT_WORKSPACE/bin/yq
 
 yq w -i values.yaml image $DOCKER_IMAGE
-yq w -i values.yaml image.tag $DOCKER_IMAGE_TAG
+yq w -i values.yaml imageTag $DOCKER_IMAGE_TAG
 echo "Updated values file tag"
 cat values.yaml
 
@@ -93,7 +93,7 @@ echo "Git commit of new image (excluding tmp files)"
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
-
+argocd repo add $CI_PROJECT_URL --username $GIT_USER --password $GIT_PAT --insecure-skip-server-verification
 argocd app create "$APP_NAME-release" --repo "$CI_PROJECT_URL.git" --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated
 argocd app sync "$APP_NAME-release"
 

@@ -98,11 +98,8 @@ git config --global user.name "[Argonaut]"
 wget -O $ARGONAUT_WORKSPACE/bin/yq "https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64"
 chmod a+x $ARGONAUT_WORKSPACE/bin/yq
 
-yq w -i values.yaml image.repository $DOCKER_IMAGE_REPO
-yq w -i values.yaml image.tag $DOCKER_IMAGE_DIGEST
-# yq w -i values.yaml image.name "$DOCKER_IMAGE_REPO@$DOCKER_IMAGE_DIGEST"
-# Hardcode for demo
-yq w -i values.yaml image.name "nginx:latest"
+yq w -i values.yaml image $DOCKER_IMAGE
+yq w -i values.yaml imageTag $DOCKER_IMAGE_DIGEST
 echo "Updated values file digest"
 cat values.yaml
 
