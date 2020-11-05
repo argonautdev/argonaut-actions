@@ -70,8 +70,8 @@ spec:
         - destination:
             port:
               number: 80
-            host: myappname.dev.svc.cluster.local
-            # host: "{{- $name -}} .dev.svc.cluster.local"
+            # host: myappname.dev.svc.cluster.local
+            host: "{{- $name -}} .dev.svc.cluster.local"
 {{- end }}
 ---
 {{- end }}
