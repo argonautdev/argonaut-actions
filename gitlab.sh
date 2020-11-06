@@ -44,6 +44,7 @@ curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.
 unzip -q awscliv2.zip
 aws/install --bin-dir ./bin
 
+# This export is redundant
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
@@ -84,8 +85,6 @@ yq w -i values.yaml image $DOCKER_IMAGE
 yq w -i values.yaml imageTag $DOCKER_IMAGE_TAG
 echo "Updated values file tag"
 
-echo "Git commit of new image (excluding tmp files)"
-
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
 echo "Adding repo: git@gitlab.com:$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY"
@@ -98,6 +97,8 @@ echo "Syncing argo app"
 argocd app sync "$APP_NAME-release"
 
 cd ../
+
+# echo "Git commit of new image (excluding tmp files)"
 
 # # Get the lay of the land
 # pwd
