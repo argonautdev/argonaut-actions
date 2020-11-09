@@ -198,4 +198,7 @@ kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 mv kustomize ./bin
 ```
 
-# Misc
+# IMPORTANT NOTES
+
+1. Istio, after TLS termination, treats the paths as HTTP. Virtual services can use HTTP path based routing subsequent to TLS termination at the gateway.
+2. Cert-manager + LetsEncrypt is pretty cool. Install cert-manager with CRDs explicitly using helm. Setup an `Issuer` or `ClusterIssuer` with letsencrypt. Follow that up with creating a `Certificate` (which automatically creates the secret key pair, the request to the CA, and the validation). Once this is done, all you need to do is use the same `Certificate` within your gateway for TLS termination.

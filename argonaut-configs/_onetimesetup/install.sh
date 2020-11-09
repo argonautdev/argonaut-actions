@@ -14,6 +14,9 @@ kubectl create ns argocd
 kubectl label namespace argocd istio-injection=enabled
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-kubectl -n argocd apply -f _onetimesetup/argocd/argocd-ingress.yaml
 
-# Setup private repos
+# Optional (?)
+kubectl patch deployment argocd-server --type json -p='[ { "op": "replace", "path":"/spec/template/spec/containers/0/command","value": ["argocd-server","--staticassets","/shared/app","--insecure"] }]' -n argocd
+
+# SETUP INGRESS
+kubectl -n argocd apply -f argonaut-configs/_onetimesetup/ingress.yaml
