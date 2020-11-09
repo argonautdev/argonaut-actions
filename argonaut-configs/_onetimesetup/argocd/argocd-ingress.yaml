@@ -6,14 +6,14 @@ spec:
   selector:
     istio: ingressgateway # use istio default ingress gateway
   servers:
-    - port:
-        number: 80
-        name: http-argocd
-        protocol: HTTP
-      hosts:
-        - "*"
-      tls:
-        httpsRedirect: true
+    # - port:
+    #     number: 80
+    #     name: http-argocd
+    #     protocol: HTTP
+    #   hosts:
+    #     - "*"
+    #   tls:
+    #     httpsRedirect: true
     - port:
         number: 443
         name: https-argocd
