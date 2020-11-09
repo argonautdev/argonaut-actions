@@ -2,12 +2,15 @@
 
 cd argonaut-configs
 
+# Setup EKS cluster
+eksctl create cluster -f _onetimesetup/awsclusterconfig.yaml
+
 # Install ISTIO and the observability stack
 curl -L https://istio.io/downloadIstio | sh -
-mv istio-1.7.4/bin/istioctl .
+mv istio-1.7.4/bin/istioctl 
 chmod a+x istioctl
 ./istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
-kubectl apply -f addons/ -n istio-system
+kubectl apply -f _onetimesetup/addons/ -n istio-system
 
 
 # # Install cert manager using helm
@@ -19,11 +22,11 @@ kubectl apply -f addons/ -n istio-system
 # helm upgrade --install cert-manager jetstack/cert-manager --set installCRDs=true --namespace cert-manager --create-namespace
 
 # Install cert-manager
-kubectl -n  cert-manager apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
 
 # Issuer in istio-system namespace
-kubectl apply -f _onetimesetup/issuer.yaml 
-kubectl apply -f _onetimesetup/cert.yaml   # Needs wait if secret needs creation
+kubectl apply -f _onetimesetup/certificate-issuer.yaml 
+kubectl apply -f _onetimesetup/certificate.yaml   # Needs wait if secret needs creation
 
 # Install argocd
 kubectl create namespace argocd
@@ -37,7 +40,7 @@ kubectl patch deployment argocd-server --type json -p='[ { "op": "replace", "pat
 
 
 # SETUP INGRESS
-kubectl -n istio-system apply -f argonaut-configs/_onetimesetup/ingress.yaml
+kubectl -n istio-system apply -f _onetimesetup/ingress.yaml
 
 # Create the environment
 kubectl create namespace dev
@@ -48,3 +51,7 @@ kubectl label namespace dev istio-injection=enabled
 # Persistent volumes
 # Clickhouse
 # Hasura
+
+# Print hostname for DNS
+echo "ADD THIS loadbalancer ip TO YOUR DNS at aws.tritonhq.io"
+kubectl get -n istio-system services | grep ingress
