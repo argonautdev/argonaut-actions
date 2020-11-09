@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: ingress-for-istio
+  namespace: istio-system
+spec:
+  # Secret names are always required.
+  secretName: ingress-for-istio
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  # At least one of a DNS Name, URI, or IP address is required.
+  dnsNames:
+    - aws.tritonhq.io
+    - "*.aws.tritonhq.io"
+  # Issuer references are always required.
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
