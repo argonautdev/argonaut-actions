@@ -74,7 +74,7 @@ export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 
 
 # Ensure sufficient permissions for reading image
-kubectl create secret -n argocd docker-registry image-pull-secret --docker-username=$GIT_USER --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=$CI_REGISTRY
+kubectl create secret -n argocd docker-registry image-pull-secret --docker-username=argonaut --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=$CI_REGISTRY
 ### TODO: Update pod deployment spec to have imagePullSecrets
 ### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
 
@@ -89,26 +89,17 @@ yq w -i values.yaml image $DOCKER_IMAGE
 yq w -i values.yaml imageTag $DOCKER_IMAGE_TAG
 echo "Updated values file tag"
 
-# Print ENV
-env
-
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
 echo "Adding repo: argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert"
 argocd repo add "https://gitlab.com/$CI_PROJECT_PATH.git" --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 # argocd repo add $CI_REPOSITORY_URL --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 echo "Creating argo app"
-echo "argocd app create "$APP_NAME-release" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git --revision "dockerfile" --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert"
-argocd app create "$APP_NAME-release" --repo "https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git" --revision "dockerfile" --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
+echo "argocd app create "$APP_NAME-rel" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git --revision "dockerfile" --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert"
+argocd app create "$APP_NAME-rel" --repo "https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git" --revision "dockerfile" --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
 echo "Syncing argo app"
 argocd app sync "$APP_NAME-release"
 
 cd ../
 
-# echo "Git commit of new image (excluding tmp files)"
-
-# # Get the lay of the land
-# pwd
-# ls -al
-# env
 echo "Exiting script"
