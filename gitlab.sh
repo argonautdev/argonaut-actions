@@ -74,7 +74,7 @@ export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 
 
 # Ensure sufficient permissions for reading image
-kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-username=argonautdev --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=ghcr.io
+kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-username=argonaut --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=$CI_REGISTRY
 ### TODO: Update pod deployment spec to have imagePullSecrets
 ### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
 
@@ -95,11 +95,11 @@ env
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
 echo "Adding repo: argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert"
-argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
+argocd repo add "https://gitlab.com/$CI_PROJECT_PATH.git" --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 # argocd repo add $CI_REPOSITORY_URL --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 echo "Creating argo app"
 echo "argocd app create "$APP_NAME-release" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git --revision "dockerfile" --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert"
-argocd app create "$APP_NAME-release" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git --revision "dockerfile" --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
+argocd app create "$APP_NAME-release" --repo "https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git" --revision "dockerfile" --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
 echo "Syncing argo app"
 argocd app sync "$APP_NAME-release"
 
