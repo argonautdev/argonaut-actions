@@ -211,3 +211,4 @@ kubectl -n istio-system get clusterissuers.cert-manager.io
 1. Istio, after TLS termination, treats the paths as HTTP. Virtual services can use HTTP path based routing subsequent to TLS termination at the gateway.
 2. Cert-manager + LetsEncrypt is pretty cool. Install cert-manager with CRDs explicitly using helm. Setup an `Issuer` or `ClusterIssuer` with letsencrypt. Follow that up with creating a `Certificate` (which automatically creates the secret key pair, the request to the CA, and the validation). Once this is done, all you need to do is use the same `Certificate` within your gateway for TLS termination. There are certificate-issue-requests, orders, and other entities also created as a part of this process
 3. HTTP-01 solver for cert manager can not be used for wildcard domains. For that, use DNS solver
+4. GitLab protected secrets run only on protected branches. Also,there might be issues with secrets that have '\$' in them

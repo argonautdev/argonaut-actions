@@ -94,12 +94,12 @@ env
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
-echo "Adding repo: argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert"
-argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
+echo "Adding repo: argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git#dockerfile --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert"
+argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git#dockerfile --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 # argocd repo add $CI_REPOSITORY_URL --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 echo "Creating argo app"
-echo "argocd app create "$APP_NAME-release" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert"
-argocd app create "$APP_NAME-release" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
+echo "argocd app create "$APP_NAME-release" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git#dockerfile --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert"
+argocd app create "$APP_NAME-release" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git#dockerfile --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
 echo "Syncing argo app"
 argocd app sync "$APP_NAME-release"
 
