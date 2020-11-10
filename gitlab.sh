@@ -86,6 +86,9 @@ yq w -i values.yaml image $DOCKER_IMAGE
 yq w -i values.yaml imageTag $DOCKER_IMAGE_TAG
 echo "Updated values file tag"
 
+# Print ENV
+env
+
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
 echo "Adding repo: https://gitlab.com:$CI_PROJECT_PATH.git"

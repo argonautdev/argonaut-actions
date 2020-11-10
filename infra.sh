@@ -6,8 +6,13 @@ cd argonaut-configs
 eksctl create cluster -f _onetimesetup/awsclusterconfig.yaml
 
 # Install ISTIO and the observability stack
-chmod a+x  _onetimesetup/bin/istioctl
-./_onetimesetup/bin/istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
+curl -L https://istio.io/downloadIstio | sh -
+mv istio-1.7.4/bin/istioctl 
+chmod a+x istioctl
+./istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
+
+# chmod a+x  _onetimesetup/bin/istioctl
+# ./_onetimesetup/bin/istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
 # Checking if timeout helps with kiali monitoring dashboard creation
 sleep 10s
 kubectl apply -f _onetimesetup/addons/ -n istio-system

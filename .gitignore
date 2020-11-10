@@ -1,4 +1,5 @@
 tmp/*
-# istioctl
+istioctl
 argonaut-configs/istio-1.7.4/*
 argonaut-configs/istio-1.7.4
+argonaut-configs/_onetimesetup/bin/istioctl
