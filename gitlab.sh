@@ -11,6 +11,9 @@ GIT_USER=$7
 GIT_PUSH_TOKEN=$8
 # DOCKER_IMAGE_DIGEST=$9
 
+echo "$!"
+echo "$@"
+
 CLUSTER_NAME="shadow"
 
 APP_NAME=$CI_PROJECT_NAME
@@ -91,10 +94,10 @@ env
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
-echo "Adding repo: argocd repo add $CI_REPOSITORY_URL --upsert
+echo "Adding repo: argocd repo add $CI_REPOSITORY_URL --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 "
 # argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
-argocd repo add $CI_REPOSITORY_URL --upsert
+argocd repo add $CI_REPOSITORY_URL --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 echo "Creating argo app"
 echo "$APP_NAME-release --repo $CI_REPOSITORY_URL --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert"
 argocd app create "$APP_NAME-release" --repo $CI_REPOSITORY_URL --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
