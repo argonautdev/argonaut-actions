@@ -93,7 +93,7 @@ env
 echo "Creating ArgoCD app release"
 echo "Adding repo: argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 "
-argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
+argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password wddNV54AT1kRnjWETNuu --upsert
 echo "Creating argo app"
 echo "$APP_NAME-release --repo https://gitlab.com/$CI_PROJECT_PATH.git --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert"
 argocd app create "$APP_NAME-release" --repo https://gitlab.com/$CI_PROJECT_PATH.git --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
