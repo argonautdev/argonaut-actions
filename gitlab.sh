@@ -8,7 +8,7 @@ DOCKER_IMAGE=$4
 DOCKER_IMAGE_TAG=$5
 DOCKER_IMAGE_ACCESS_TOKEN=$6
 GIT_USER=$7
-GIT_PAT=$8
+GIT_PUSH_TOKEN=$8
 # DOCKER_IMAGE_DIGEST=$9
 
 CLUSTER_NAME="shadow"
@@ -44,7 +44,7 @@ curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.
 unzip -q awscliv2.zip
 aws/install --bin-dir ./bin
 
-# This export is redundant
+# This export is redundant?
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
@@ -71,7 +71,7 @@ export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 
 
 # Ensure sufficient permissions for reading image
-kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-username=argonautdev --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonauts@argonaut.dev --docker-server=ghcr.io
+kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-username=argonautdev --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=ghcr.io
 ### TODO: Update pod deployment spec to have imagePullSecrets
 ### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
 
@@ -92,7 +92,7 @@ env
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
 echo "Adding repo: https://gitlab.com:$CI_PROJECT_PATH.git"
-argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $CI_USERNAME --password $GIT_PUSH_TOKEN --upsert
+argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 echo "Creating argo app"
 echo "$APP_NAME-release --repo https://gitlab.com/$CI_PROJECT_PATH.git --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert"
 argocd app create "$APP_NAME-release" --repo https://gitlab.com/$CI_PROJECT_PATH.git --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
