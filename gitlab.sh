@@ -54,15 +54,16 @@ aws eks --region us-east-2 update-kubeconfig --name $CLUSTER_NAME
 # Install ArgoCD CLI
 echo "Installing ArgoCD CLI"
 
-export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output .status.loadBalancer.ingress[0].hostname`
+export ARGOCD_SERVER="aws.tritonhq.io"
+# export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output .status.loadBalancer.ingress[0].hostname`
 export ARGO_PWD=`kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2`
 
 curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v1.7.8/argocd-linux-amd64
 chmod a+x /usr/local/bin/argocd
 
 # Access the argocd operator
-argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
-argocd cluster list
+# argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
+argocd login $ARGOCD_SERVER --username admin --password "1234567890" --insecure --grpc-web
 export CONTEXT_NAME=`kubectl config view -o jsonpath='{.contexts[].name}'`
 argocd cluster add $CONTEXT_NAME
 # If there are multiple clusters, need to pick the right one
@@ -87,12 +88,11 @@ echo "Updated values file tag"
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
-echo "Adding repo: git@gitlab.com:$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY"
-# Need to replace : with / for public repos; include retries
-argocd repo add git@gitlab.com:$CI_PROJECT_PATH.git --ssh-private-key-path $SSHPRIVATEKEY --upsert
+echo "Adding repo: https://gitlab.com:$CI_PROJECT_PATH.git"
+argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username argonaut --password $CI_PUSH_TOKEN --upsert
 echo "Creating argo app"
 echo "$APP_NAME-release --repo git@gitlab.com:$CI_PROJECT_PATH.git --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert"
-argocd app create "$APP_NAME-release" --repo git@gitlab.com:$CI_PROJECT_PATH.git --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
+argocd app create "$APP_NAME-release" --repo https://gitlab.com/$CI_PROJECT_PATH.git --path argonaut-configs --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
 echo "Syncing argo app"
 argocd app sync "$APP_NAME-release"
 

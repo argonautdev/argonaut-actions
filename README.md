@@ -198,7 +198,16 @@ kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 mv kustomize ./bin
 ```
 
+# Certificate management
+
+kubectl -n istio-system describe orders.acme.cert-manager.io
+kubectl -n istio-system describe secret ingress-for-istio-wpgkw
+kubectl -n istio-system describe certificaterequests.cert-manager.io
+kubectl -n istio-system describe certificates.cert-manager.io
+kubectl -n istio-system get clusterissuers.cert-manager.io
+
 # IMPORTANT NOTES
 
 1. Istio, after TLS termination, treats the paths as HTTP. Virtual services can use HTTP path based routing subsequent to TLS termination at the gateway.
-2. Cert-manager + LetsEncrypt is pretty cool. Install cert-manager with CRDs explicitly using helm. Setup an `Issuer` or `ClusterIssuer` with letsencrypt. Follow that up with creating a `Certificate` (which automatically creates the secret key pair, the request to the CA, and the validation). Once this is done, all you need to do is use the same `Certificate` within your gateway for TLS termination.
+2. Cert-manager + LetsEncrypt is pretty cool. Install cert-manager with CRDs explicitly using helm. Setup an `Issuer` or `ClusterIssuer` with letsencrypt. Follow that up with creating a `Certificate` (which automatically creates the secret key pair, the request to the CA, and the validation). Once this is done, all you need to do is use the same `Certificate` within your gateway for TLS termination. There are certificate-issue-requests, orders, and other entities also created as a part of this process
+3. HTTP-01 solver for cert manager can not be used for wildcard domains. For that, use DNS solver
