@@ -68,7 +68,7 @@ chmod a+x /usr/local/bin/argocd
 # argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
 argocd login $ARGOCD_SERVER --username admin --password "1234567890" --insecure --grpc-web
 export CONTEXT_NAME=`kubectl config view -o jsonpath='{.contexts[].name}'`
-argocd cluster add $CONTEXT_NAME
+argocd cluster add $CONTEXT_NAME --upsert
 # If there are multiple clusters, need to pick the right one
 export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 
