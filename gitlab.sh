@@ -74,7 +74,7 @@ export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 
 
 # Ensure sufficient permissions for reading image
-kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-username=argonaut --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=$CI_REGISTRY
+kubectl create secret -n argocd docker-registry image-pull-secret --docker-username=$GIT_USER --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=$CI_REGISTRY
 ### TODO: Update pod deployment spec to have imagePullSecrets
 ### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
 
