@@ -8,6 +8,8 @@ eksctl create cluster -f _onetimesetup/awsclusterconfig.yaml
 # Install ISTIO and the observability stack
 chmod a+x  _onetimesetup/bin/istioctl
 ./_onetimesetup/bin/istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
+# Checking if timeout helps with kiali monitoring dashboard creation
+sleep 10s
 kubectl apply -f _onetimesetup/addons/ -n istio-system
 
 
@@ -23,6 +25,8 @@ kubectl apply -f _onetimesetup/addons/ -n istio-system
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
 
 # Issuer in istio-system namespace
+# Needs to wait for certmanager pods to be ready
+sleep 20s
 kubectl -n istio-system apply -f _onetimesetup/certificate-issuer.yaml 
 kubectl -n istio-system apply -f _onetimesetup/certificate.yaml   # Needs wait if secret needs creation
 
@@ -37,11 +41,11 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 kubectl patch deployment argocd-server --type json -p='[ { "op": "replace", "path":"/spec/template/spec/containers/0/command","value": ["argocd-server","--staticassets","/shared/app","--insecure"] }]' -n argocd
 
 # # ArgoCD password reset to 1234567890
-# kubectl -n argocd patch secret argocd-secret \
-#   -p '{"stringData": {
-#     "admin.password": "$2a$10$Vnr.0q6Gv/rpMouOaF9dPO4TBgPsflxFQHiOZkKckoTvFiwwwsLYO",
-#     "admin.passwordMtime": "'$(date +%FT%T%Z)'"
-#   }}'
+kubectl -n argocd patch secret argocd-secret \
+  -p '{"stringData": {
+    "admin.password": "$2a$10$Vnr.0q6Gv/rpMouOaF9dPO4TBgPsflxFQHiOZkKckoTvFiwwwsLYO",
+    "admin.passwordMtime": "'$(date +%FT%T%Z)'"
+  }}'
 
 # SETUP INGRESS
 kubectl -n istio-system apply -f _onetimesetup/ingress.yaml
