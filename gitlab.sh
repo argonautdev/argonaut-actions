@@ -57,7 +57,7 @@ aws eks --region us-east-2 update-kubeconfig --name $CLUSTER_NAME
 # Install ArgoCD CLI
 echo "Installing ArgoCD CLI"
 
-export ARGOCD_SERVER="aws.tritonhq.io"
+export ARGOCD_SERVER="argonaut.tritonhq.io"
 # export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output .status.loadBalancer.ingress[0].hostname`
 export ARGO_PWD=`kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2`
 

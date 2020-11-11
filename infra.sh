@@ -66,5 +66,5 @@ kubectl label namespace dev istio-injection=enabled
 # Hasura
 
 # Print hostname for DNS
-echo "ADD THIS loadbalancer ip TO YOUR DNS at aws.tritonhq.io"
+echo "ADD THIS loadbalancer ip TO YOUR DNS at aws.tritonhq.io AND argonaut.tritonhq.io"
 kubectl get -n istio-system services | grep ingress

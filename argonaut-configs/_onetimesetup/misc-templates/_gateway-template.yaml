@@ -1,0 +1,42 @@
+---
+# {{- $name := include "argonaut-deployment.uname" . -}}
+# {{- $chartName := .Chart.Name -}}
+# {{- $releaseName := .Release.Name -}}
+# {{- $releaseService := .Release.Service -}}
+# {{- $host := .Values.host -}}
+
+# {{- range .Values.services }}
+# {{- if .ingress }}
+# apiVersion: networking.istio.io/v1alpha3
+# kind: Gateway
+# metadata:
+#   name: "{{ $name }}-{{- .name -}}-gw"
+#   labels:
+#     heritage: {{ $releaseService | quote }}
+#     release: {{ $releaseName | quote }}
+#     chart: {{ $chartName | quote }}
+#     app: {{ $name | quote }}
+# spec:
+#   selector:
+#     istio: ingressgateway # use Istio default gateway implementation
+#   servers:
+#     - port:
+#         name: "{{ $name }}-{{- .name -}}"
+#         number: {{ .port }}
+#         protocol: {{ .protocol }}
+#       hosts:
+#         {{- if or (empty $host) (eq $host "local") }}
+#         - "*"
+#         {{- else }}
+#         - {{ $host }}
+#         {{- end }}
+#       {{- if eq .ingress.tls "terminated" }}
+#       tls:
+#         mode: SIMPLE
+#         credentialName: ingress-letsencrypt  # either this or cert and key
+#       {{- end }}
+
+# {{- end }}
+# ---
+# {{- end }}
+

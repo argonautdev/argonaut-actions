@@ -11,7 +11,7 @@ spec:
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:
     - aws.tritonhq.io
-    # - "*.aws.tritonhq.io"
+    - argonaut.tritonhq.io
   # Issuer references are always required.
   issuerRef:
     name: letsencrypt-prod

@@ -28,12 +28,18 @@ spec:
     chart: "argonaut-configs"
     app: "myappname"
   ports: 
-    - name: "myappname-http"
+    - name: "myappname-device-backend-3333"
       protocol: TCP # UDP and SCTP are the other options
-      port: 80 
-    - name: "myappname-https"
+      port: 3333 
+    - name: "myappname-hasura-8080"
       protocol: TCP # UDP and SCTP are the other options
-      port: 443
+      port: 8080 
+    - name: "myappname-mqtt-8883"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 8883 
+    - name: "myappname-mqtt-1883"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 1883
 ---
 # Source: argonaut-configs/templates/statefulset.yaml
 apiVersion: apps/v1
@@ -99,13 +105,21 @@ spec:
         imagePullPolicy: "IfNotPresent"
 
         ports:
-        - name: "myappname-http"
-          containerPort: 80
-          # protocol: http
-          # ingress: true
-        - name: "myappname-https"
-          containerPort: 443
+        - name: "myappname-device-backend-3333"
+          containerPort: 3333
           # protocol: tls
+          # ingress: true
+        - name: "myappname-hasura-8080"
+          containerPort: 8080
+          # protocol: tls
+          # ingress: true
+        - name: "myappname-mqtt-8883"
+          containerPort: 8883
+          # protocol: tcp
+          # ingress: true
+        - name: "myappname-mqtt-1883"
+          containerPort: 1883
+          # protocol: tcp
           # ingress: true
         resources:
           requests:
@@ -116,55 +130,11 @@ spec:
         volumeMounts: []
 ---
 # Source: argonaut-configs/templates/ingress.yaml
-apiVersion: networking.istio.io/v1alpha3
-kind: Gateway
-metadata:
-  name: "myappname-http-gw"
-  labels:
-    heritage: "Helm"
-    release: "RELEASE-NAME"
-    chart: "argonaut-configs"
-    app: "myappname"
-spec:
-  selector:
-    istio: ingressgateway # use Istio default gateway implementation
-  servers:
-    - port:
-        name: "myappname-http"
-        number: 80
-        protocol: http
-      hosts:
-        - aws.tritonhq.io
----
-# Source: argonaut-configs/templates/ingress.yaml
-apiVersion: networking.istio.io/v1alpha3
-kind: Gateway
-metadata:
-  name: "myappname-https-gw"
-  labels:
-    heritage: "Helm"
-    release: "RELEASE-NAME"
-    chart: "argonaut-configs"
-    app: "myappname"
-spec:
-  selector:
-    istio: ingressgateway # use Istio default gateway implementation
-  servers:
-    - port:
-        name: "myappname-https"
-        number: 443
-        protocol: tls
-      hosts:
-        - aws.tritonhq.io
-      tls:
-        mode: SIMPLE
-        credentialName: ingress-letsencrypt  # either this or cert and key
----
-# Source: argonaut-configs/templates/ingress.yaml
+# Configure Virtual Services
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: "myappname-http-vs"
+  name: "myappname-device-backend-3333-vs"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
@@ -174,24 +144,24 @@ spec:
   hosts:
     - aws.tritonhq.io
   gateways:
-    - "myappname-http-gw"
+    -   name: ingress-gateway
   exportTo:
     - "*" # TBD - env interaction
   http:
     - match:
         - uri:
-            prefix: /wp/
+            prefix: /device-backend/
       route:
         - destination:
             port:
-              number: 80
+              number: 443
             host: "myappname.dev.svc.cluster.local"
 ---
 # Source: argonaut-configs/templates/ingress.yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: "myappname-https-vs"
+  name: "myappname-hasura-8080-vs"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
@@ -201,15 +171,69 @@ spec:
   hosts:
     - aws.tritonhq.io
   gateways:
-    - "myappname-https-gw"
+    -   name: ingress-gateway
   exportTo:
     - "*" # TBD - env interaction
   http:
     - match:
         - uri:
-            prefix: /wps/
+            prefix: /hasura/
       route:
         - destination:
             port:
-              number: 80
+              number: 443
             host: "myappname.dev.svc.cluster.local"
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "myappname-mqtt-8883-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    -   name: ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  # tcp implementation
+  tcp:
+  - match:
+    - port: 8883
+    route:
+    - destination:
+        host: "myappname.dev.svc.cluster.local"
+        port:
+          number: 8883
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "myappname-mqtt-1883-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    -   name: ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  # tcp implementation
+  tcp:
+  - match:
+    - port: 1883
+    route:
+    - destination:
+        host: "myappname.dev.svc.cluster.local"
+        port:
+          number: 1883

@@ -8,21 +8,81 @@ spec:
   servers:
     # - port:
     #     number: 80
-    #     name: argonaut-http
+    #     name: http
     #     protocol: HTTP
     #   hosts:
     #     - "aws.tritonhq.io"
-    #   tls:
-    #     httpsRedirect: true
+    #     - "argonaut.tritonhq.io"
+    #   # tls:
+    #   #   httpsRedirect: true
     - port:
         number: 443
-        name: argonaut-https
+        name: https
         protocol: HTTPS
       tls:
         mode: SIMPLE
         credentialName: ingress-letsencrypt # must be the same as secret
       hosts:
         - "aws.tritonhq.io"
+        - "argonaut.tritonhq.io"
+    - port:
+        number: 1883
+        name: tcp-mqtt-1833
+        protocol: TCP
+      hosts:
+        - "aws.tritonhq.io"
+    - port:
+        number: 8883
+        name: tcp-mqtt-8883
+        protocol: TCP
+      hosts:
+        - "aws.tritonhq.io"
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "hasura"
+spec:
+  hosts:
+    - "aws.tritonhq.io"
+  gateways:
+    - ingress-gateway
+  exportTo:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: /hasura/
+      route:
+        - destination:
+            port:
+              number: 8080
+            host: hasura.dev.svc.cluster.local
+---
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "grafana-ingress"
+spec:
+  hosts:
+    - "argonaut.tritonhq.io"
+  gateways:
+    - ingress-gateway
+  exportTo:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: /grafana
+      route:
+        - destination:
+            port:
+              number: 3000
+            host: grafana.istio-system.svc.cluster.local
+---
 
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -31,7 +91,7 @@ metadata:
   name: "argocd-ingress"
 spec:
   hosts:
-    - "aws.tritonhq.io"
+    - "argonaut.tritonhq.io"
   gateways:
     - ingress-gateway
   http:
@@ -44,14 +104,13 @@ spec:
             port:
               number: 443
 ---
-# Source: argonaut-configs/templates/ingress.yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: "kiali-ingress"
 spec:
   hosts:
-    - "aws.tritonhq.io"
+    - "argonaut.tritonhq.io"
   gateways:
     - ingress-gateway
   exportTo:
@@ -65,68 +124,68 @@ spec:
             port:
               number: 20001
             host: kiali.istio-system.svc.cluster.local
-            # host: "myappname.dev.svc.cluster.local"
 ---
+
+---
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: "device-backend"
+# spec:
+#   hosts:
+#     - "aws.tritonhq.io"
+#   gateways:
+#     - ingress-gateway
+#   exportTo:
+#     - "*"
+#   http:
+#     - match:
+#         - uri:
+#             prefix: /device-backend/
+#       route:
+#         - destination:
+#             port:
+#               number: 3333
+#             host: device-backend.dev.svc.cluster.local
+# ---
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: "mqtt-1883"
+# spec:
+#   hosts:
+#     - "aws.tritonhq.io"
+#   gateways:
+#     - ingress-gateway
+#   exportTo:
+#     - "*"
+#   tcp:
+#     - match:
+#         - port: 1883
+#       route:
+#         - destination:
+#             port:
+#               number: 1883
+#             host: beamd.dev.svc.cluster.local
 # ---
 # # Source: argonaut-configs/templates/ingress.yaml
 # apiVersion: networking.istio.io/v1alpha3
-# kind: Gateway
+# kind: VirtualService
 # metadata:
-#   name: "kiali-ingress"
+#   name: "mqtt-8883"
 # spec:
-#   selector:
-#     istio: ingressgateway # use Istio default gateway implementation
-#   servers:
-#     - port:
-#         name: http-kiali
-#         protocol: http
-#         number: 80
-#       hosts:
-#         - "aws.tritonhq.io"
+#   hosts:
+#     - "aws.tritonhq.io"
+#   gateways:
+#     - ingress-gateway
+#   exportTo:
+#     - "*"
+#   tcp:
+#     - match:
+#         - port: 8883
+#       route:
+#         - destination:
+#             port:
+#               number: 8883
+#             host: beamd.dev.svc.cluster.local
 # ---
-
-# ---
-# # Source: argonaut-configs/templates/ingress.yaml
-# apiVersion: networking.istio.io/v1alpha3
-# kind: Gateway
-# metadata:
-#   name: "grafana-ingress"
-# spec:
-#   selector:
-#     istio: ingressgateway # use Istio default gateway implementation
-#   servers:
-#     - port:
-#         name: http-grafana
-#         protocol: http
-#         number: 80
-#       hosts:
-#         - "aws.tritonhq.io"
-# ---
-
----
-# Source: argonaut-configs/templates/ingress.yaml
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: "grafana-ingress"
-spec:
-  hosts:
-    - "aws.tritonhq.io"
-  gateways:
-    - ingress-gateway
-  exportTo:
-    - "*"
-  http:
-    - match:
-        - uri:
-            prefix: /grafana
-      # rewrite:
-      #   uri: "/"
-      route:
-        - destination:
-            port:
-              number: 3000
-            host: grafana.istio-system.svc.cluster.local
-            # host: "myappname.dev.svc.cluster.local"
----
-
