@@ -7,7 +7,7 @@ eksctl create cluster -f _onetimesetup/awsclusterconfig.yaml
 
 # Install ISTIO and the observability stack
 curl -L https://istio.io/downloadIstio | sh -
-mv istio-1.7.4/bin/istioctl 
+mv istio-1.7.4/bin/istioctl .
 chmod a+x istioctl
 ./istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
 

@@ -8,7 +8,7 @@ spec:
   servers:
     # - port:
     #     number: 80
-    #     name: http
+    #     name: argonaut-http
     #     protocol: HTTP
     #   hosts:
     #     - "aws.tritonhq.io"
@@ -16,11 +16,11 @@ spec:
     #     httpsRedirect: true
     - port:
         number: 443
-        name: https
+        name: argonaut-https
         protocol: HTTPS
       tls:
         mode: SIMPLE
-        credentialName: ingress-for-istio # must be the same as secret
+        credentialName: ingress-letsencrypt # must be the same as secret
       hosts:
         - "aws.tritonhq.io"
 

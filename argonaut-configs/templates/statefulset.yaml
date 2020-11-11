@@ -1,3 +1,4 @@
+{{- $name := include "argonaut-deployment.uname" . -}}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -198,16 +199,14 @@ spec:
 {{ toYaml .Values.securityContext | indent 10 }}
         image: "{{ template "argonaut-deployment.imageName" . }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
-        readinessProbe:
-{{ toYaml .Values.readinessProbe | indent 10 }}
+
         ports:
-        # {{- range .Values.services }}
-        {{- range .ports }}
-        - name: {{ .name }}
+        {{- range .Values.services }}
+        - name: "{{ $name -}}-{{- .name }}"
           containerPort: {{ .port }}
           # protocol: {{ .protocol }}
+          # ingress: {{ .ingress.enabled }}
         {{- end }}
-        # {{- end }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         env:

@@ -21,17 +21,19 @@ metadata:
     chart: "argonaut-configs"
     version: "v1"
     app: "myappname"
-  # annotations:
-  #   networking.istio.io/exportTo: "."
 spec:
+  type: ClusterIP
   selector:
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
     app: "myappname"
-  ports:
-  - name: http
-    protocol: TCP # UDP and SCTP are the other options
-    port: 80
+  ports: 
+    - name: "myappname-http"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 80 
+    - name: "myappname-https"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 443
 ---
 # Source: argonaut-configs/templates/statefulset.yaml
 apiVersion: apps/v1
@@ -85,6 +87,8 @@ spec:
       volumes:
       # Persistence Enabled - volume mounts
       # extraConfig
+      imagePullSecrets:
+        - name: image-pull-secret
       initContainers:
 
       containers:
@@ -93,25 +97,20 @@ spec:
           {}
         image: "wordpress:latest"
         imagePullPolicy: "IfNotPresent"
-        readinessProbe:
-          failureThreshold: 5
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          successThreshold: 3
-          timeoutSeconds: 5
+
         ports:
-        #
-        - name: http
+        - name: "myappname-http"
           containerPort: 80
           # protocol: http
-        #
+          # ingress: true
+        - name: "myappname-https"
+          containerPort: 443
+          # protocol: tls
+          # ingress: true
         resources:
-          limits:
-            cpu: 200m
-            memory: 256M
+          requests:
+            cpu: 100m
+            memory: 200M
         env:
         # initContainer volume mount needs to be enabled in the template
         volumeMounts: []
@@ -120,62 +119,52 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: "myappname"
+  name: "myappname-http-gw"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
     app: "myappname"
-  # annotations:
-  #   service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-west-2:{act#}:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-  #   service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
-  #   service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "300"
 spec:
   selector:
     istio: ingressgateway # use Istio default gateway implementation
   servers:
     - port:
-        name: http
-        protocol: http
+        name: "myappname-http"
         number: 80
+        protocol: http
       hosts:
         - aws.tritonhq.io
-    # - port:
-    #     number: 443
-    #     name: https
-    #     protocol: HTTPS
-    #   hosts:
-    #     - "*"
-    #   tls:
-    #     mode: SIMPLE
-    #     credentialName: helloworld-credential # either this or cert and key
-    #     serverCertificate: /etc/certs/server.pem
-    #     privateKey: /etc/certs/privatekey.pem
 ---
-# Source: argonaut-configs/templates/externalservice.yaml
+# Source: argonaut-configs/templates/ingress.yaml
 apiVersion: networking.istio.io/v1alpha3
-kind: ServiceEntry
+kind: Gateway
 metadata:
-  name: "rds-mysql-external"
+  name: "myappname-https-gw"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
     chart: "argonaut-configs"
+    app: "myappname"
 spec:
-  hosts:
-    - database-1.co45pjczxgry.us-east-2.rds.amazonaws.com
-  ports:
-    - name: mysql
-      protocol: TCP
-      number: 3306
-  resolution: NONE # DNS
-  location: MESH_EXTERNAL
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+    - port:
+        name: "myappname-https"
+        number: 443
+        protocol: tls
+      hosts:
+        - aws.tritonhq.io
+      tls:
+        mode: SIMPLE
+        credentialName: ingress-letsencrypt  # either this or cert and key
 ---
 # Source: argonaut-configs/templates/ingress.yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: "myappname"
+  name: "myappname-http-vs"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
@@ -185,16 +174,42 @@ spec:
   hosts:
     - aws.tritonhq.io
   gateways:
-    - "myappname"
+    - "myappname-http-gw"
   exportTo:
-    - "*"
+    - "*" # TBD - env interaction
   http:
     - match:
         - uri:
-            prefix: /
+            prefix: /wp/
       route:
         - destination:
             port:
               number: 80
-            host: myappname.dev.svc.cluster.local
-            # host: "myappname.dev.svc.cluster.local"
+            host: "myappname.dev.svc.cluster.local"
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "myappname-https-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    - "myappname-https-gw"
+  exportTo:
+    - "*" # TBD - env interaction
+  http:
+    - match:
+        - uri:
+            prefix: /wps/
+      route:
+        - destination:
+            port:
+              number: 80
+            host: "myappname.dev.svc.cluster.local"

@@ -1,11 +1,11 @@
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
-  name: ingress-for-istio
+  name: ingress-letsencrypt
   namespace: istio-system
 spec:
   # Secret names are always required.
-  secretName: ingress-for-istio
+  secretName: ingress-letsencrypt
   duration: 8640h # 90d
   renewBefore: 720h # 15d
   # At least one of a DNS Name, URI, or IP address is required.

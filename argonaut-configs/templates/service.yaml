@@ -4,7 +4,6 @@
 {{- $releaseService := .Release.Service -}}
 {{- $version := .Values.version | default .Release.Revision -}}
 
-{{- range .Values.services }}
 kind: Service
 apiVersion: v1
 metadata:
@@ -15,27 +14,16 @@ metadata:
     chart: {{ $chartName | quote }}
     version: {{ $version | quote }}
     app: {{ $name | quote }}
-{{- if .labels }}
-{{ toYaml .labels | indent 4 }}
-{{- end }}
-  # annotations:
-  #   networking.istio.io/exportTo: "."
-{{- if .annotations }}
-{{ toYaml .annotations | indent 4 }}
-{{- end }}
 spec:
-{{- if not .public }}
   type: ClusterIP
-{{- end }}
   selector:
     release: {{ $releaseName | quote }}
     chart: {{ $chartName | quote }}
     app: {{ $name | quote }}
   ports:
-  {{- range .ports }}
-  - name: {{ .name }}
-    protocol: TCP # UDP and SCTP are the other options
-    port: {{ .port }}
-  {{- end }}
+    {{- range .Values.services }} 
+    - name: "{{ $name }}-{{- .name -}}"
+      protocol: TCP # UDP and SCTP are the other options
+      port: {{ .port }}
+    {{- end }}
 ---
-{{- end }}

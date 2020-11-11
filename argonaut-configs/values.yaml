@@ -1,25 +1,25 @@
 ---
-appName: "myappname"
 version: "v1"
+appName: "myappname"
+env: "dev"
 
 host: "aws.tritonhq.io"
-
-nameOverride: ""
 
 image: "wordpress"
 imageTag: "latest"
 imageDigest: ""
-imagePullPolicy: "IfNotPresent"
-imagePullSecrets: []
+imagePullPolicy: "IfNotPresent" # If imageTag = "latest", set this to "Always"
+imagePullSecrets:
+  - name: image-pull-secret
 
 replicas: 2
 resources:
-  # requests:
+  requests:
+    cpu: "100m"
+    memory: "200M"
+  # limits:
   #   cpu: "200m"
   #   memory: "256M"
-  limits:
-    cpu: "200m"
-    memory: "256M"
 
 persistence:
   enabled: false
@@ -37,71 +37,45 @@ volumeClaimTemplate:
       storage: "600M"
 
 services:
-  - labels: {}
-    public: true
-    annotations: {}
-    ports: # TODO: implement path, route, and protocol in virtual service
-      - name: http
-        protocol: http
-        port: 80
-
-externalServices:
-  - name: rds-mysql-external
-    hosts:
-      - database-1.co45pjczxgry.us-east-2.rds.amazonaws.com
-    # addresses:
-    #   - 10.10.10.0/24
-    ports:
-      - number: 3306
-        name: mysql
-        protocol: TCP
-      # - number: 443
-      #   name: https
-      #   protocol: HTTPS
-    resolution: NONE # DNS
-    location: MESH_EXTERNAL
-    # tls: Disabled   # TO BE IMPLEMENTED
-
-# The default value of 1 will make sure that kubernetes won't allow more than 1
-# of your pods to be unavailable during maintenance
-maxUnavailable: 25%
-updateStrategy: RollingUpdate
-# How long to wait for myapp to stop gracefully
-terminationGracePeriod: 120
-
-# Enabling this will publically expose your app/service instance.
-# Only enable this if you have security enabled on your cluster
-ingress:
-  enabled: false
-  annotations:
-    {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  path: /
-  hosts:
-    - chart-example.local
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-lifecycle:
-  {}
-  # preStop:
-  #   exec:
-  #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
-  # postStart:
-  #   exec:
-  #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+  - name: http # appname will be prefixed, needs to be unique
+    protocol: http # http, tls, tcp
+    port: 80 # number only
+    ingress:
+      enabled: true
+      tls: "" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
+      port: 80
+      path: "/wp/" # prefix regex match
+      # httpsRedirect: false # TBD implementation - can't be set at service level but will need to be cluster level
+      # hosts: # OR matched
+      #   - "*"
+      #   - "aws.tritonhq.io"
+      # headers: unused # To be implemented
+  - name: https # appname will be prefixed, needs to be unique
+    protocol: tls # http, tls, tcp
+    port: 443 # number only
+    ingress:
+      enabled: true
+      tls: "terminated" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
+      port: 80
+      path: "/wps/" # prefix regex match
+      # httpsRedirect: false # TBD implementation - can't be set at service level but will need to be cluster level
+      # hosts: # OR matched
+      #   - "*"
+      #   - "aws.tritonhq.io"
+      # headers: unused # To be implemented
 
 # Can only do one of the httpGet and exec handler methods for livenessProbe
 livenessProbe:
-  httpGet:
-    path: /
-    port: http
-  # exec:
-  #   command:
-  #     - sh
+  # httpGet:
+  #   path: /
+  #   port: http
+  exec:
+    command:
+      - sh
+      - -c
+      - |
+        #!/usr/bin/env sh
+        test -f /etc/
   failureThreshold: 5
   initialDelaySeconds: 10
   periodSeconds: 10
@@ -110,19 +84,36 @@ livenessProbe:
 # Can only do one of the httpGet and exec handler methods for readinessProbe
 readinessProbe:
   # # Handler 1
-  httpGet:
-    path: /
-    port: 80
-  # # Handler 2
-  # exec:
-  #   command:
-  #     - sh
+  # httpGet:
+  #   path: /
+  #   port: 80
+  # Handler 2
+  exec:
+    command:
+      - sh
+      - -c
+      - |
+        #!/usr/bin/env sh
+        test -f /etc/
   # Common fields
   failureThreshold: 5
   initialDelaySeconds: 10
   successThreshold: 3
   periodSeconds: 10
   timeoutSeconds: 5
+
+########################################################################################
+
+nameOverride: ""
+
+keystore: []
+
+podAnnotations:
+  {}
+  # iam.amazonaws.com/role: myapp-cluster
+
+# additionals labels
+labels: {}
 
 # Allows you to load environment variables from kubernetes secret or config map
 envFrom: []
@@ -140,17 +131,6 @@ secretMounts: []
 #    path: /usr/share/myapp/config/certs
 #    defaultMode: 0755
 
-########################################################################################
-
-keystore: []
-
-podAnnotations:
-  {}
-  # iam.amazonaws.com/role: myapp-cluster
-
-# additionals labels
-labels: {}
-
 sidecarResources:
   {}
   # limits:
@@ -161,6 +141,22 @@ sidecarResources:
   #   memory: "128Mi"
 
 # networkHost: "0.0.0.0"
+
+# The default value of 1 will make sure that kubernetes won't allow more than 1
+# of your pods to be unavailable during maintenance
+maxUnavailable: 25%
+updateStrategy: RollingUpdate
+# How long to wait for myapp to stop gracefully
+terminationGracePeriod: 120
+
+lifecycle:
+  {}
+  # preStop:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+  # postStart:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
 
 rbac:
   create: false
