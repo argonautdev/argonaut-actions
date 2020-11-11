@@ -132,7 +132,7 @@ spec:
         {{- if .Values.persistence.enabled }}
         {{- range $index, $volumeMount := .Values.persistence.volumeMounts }}
         - name: "{{ $volumeMount.name }}"
-          # mountPath: "{{ $volumeMount.mountPath }}"
+          mountPath: "{{ $volumeMount.mountPath }}"
         {{ end }}
         {{ end }}
       # extraConfig
