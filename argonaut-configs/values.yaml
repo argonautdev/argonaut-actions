@@ -74,13 +74,21 @@ services:
       tls: "" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
       port: 1883
       path: "/" # prefix regex match
-  - name: wp80 # appname will be prefixed, needs to be unique
+  - name: nx80 # appname will be prefixed, needs to be unique
     protocol: http # http, tls, tcp
     port: 80 # number only
     ingress:
       enabled: true
       tls: "" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
       port: 80
+      path: "/app/" # prefix regex match
+  - name: nx443 # appname will be prefixed, needs to be unique
+    protocol: tls # http, tls, tcp
+    port: 443 # number only
+    ingress:
+      enabled: true
+      tls: "terminated" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
+      port: 443
       path: "/app/" # prefix regex match
 
 # Can only do one of the httpGet and exec handler methods for livenessProbe

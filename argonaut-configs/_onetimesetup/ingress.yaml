@@ -76,7 +76,7 @@ spec:
   http:
     - match:
         - uri:
-            prefix: /grafana
+            prefix: /grafana/
       route:
         - destination:
             port:
@@ -118,7 +118,7 @@ spec:
   http:
     - match:
         - uri:
-            prefix: /kiali
+            prefix: /kiali/
       route:
         - destination:
             port:

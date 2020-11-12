@@ -40,9 +40,12 @@ spec:
     - name: "myapp-mq1883"
       protocol: TCP # UDP and SCTP are the other options
       port: 1883 
-    - name: "myapp-wp80"
+    - name: "myapp-nx80"
       protocol: TCP # UDP and SCTP are the other options
-      port: 80
+      port: 80 
+    - name: "myapp-nx443"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 443
 ---
 # Source: argonaut-configs/templates/statefulset.yaml
 apiVersion: apps/v1
@@ -104,7 +107,7 @@ spec:
       - name: "argonaut-configs"
         securityContext:
           {}
-        image: "wordpress:latest"
+        image: "nginx:latest"
         imagePullPolicy: "IfNotPresent"
 
         ports:
@@ -124,9 +127,13 @@ spec:
           containerPort: 1883
           # protocol: tcp
           # ingress: true
-        - name: "myapp-wp80"
+        - name: "myapp-nx80"
           containerPort: 80
           # protocol: http
+          # ingress: true
+        - name: "myapp-nx443"
+          containerPort: 443
+          # protocol: tls
           # ingress: true
         resources:
           requests:
@@ -158,6 +165,8 @@ spec:
     - match:
         - uri:
             prefix: /device-backend/
+      rewrite:
+        uri: "/" # /device-backend/
       route:
         - destination:
             port:
@@ -185,6 +194,8 @@ spec:
     - match:
         - uri:
             prefix: /hasura/
+      rewrite:
+        uri: "/" # /hasura/
       route:
         - destination:
             port:
@@ -249,7 +260,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: "myappname-wp80-vs"
+  name: "myappname-nx80-vs"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
@@ -265,9 +276,40 @@ spec:
   http:
     - match:
         - uri:
-            prefix: /wp/
+            prefix: /app/
+      rewrite:
+        uri: "/" # /app/
       route:
         - destination:
             port:
               number: 80
+            host: "myappname.dev.svc.cluster.local"
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "myappname-nx443-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    - istio-system/ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  http:
+    - match:
+        - uri:
+            prefix: /app/
+      rewrite:
+        uri: "/" # /app/
+      route:
+        - destination:
+            port:
+              number: 443
             host: "myappname.dev.svc.cluster.local"
