@@ -5,7 +5,7 @@ env: "dev"
 
 host: "aws.tritonhq.io"
 
-image: "wordpress"
+image: "nginx"
 imageTag: "latest"
 imageDigest: ""
 imagePullPolicy: "IfNotPresent" # If imageTag = "latest", set this to "Always"
@@ -37,7 +37,7 @@ volumeClaimTemplate:
       storage: "600M"
 
 services:
-  - name: device-backend-3333 # appname will be prefixed, needs to be unique
+  - name: db3333 # appname will be prefixed, needs to be unique
     protocol: tls # http, tls, tcp
     port: 3333 # number only
     ingress:
@@ -50,7 +50,7 @@ services:
       #   - "*"
       #   - "aws.tritonhq.io"
       # headers: unused # To be implemented
-  - name: hasura-8080 # appname will be prefixed, needs to be unique
+  - name: hs8080 # appname will be prefixed, needs to be unique
     protocol: tls # http, tls, tcp
     port: 8080 # number only
     ingress:
@@ -58,7 +58,7 @@ services:
       tls: "terminated" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
       port: 443
       path: "/hasura/" # prefix regex match
-  - name: mqtt-8883 # appname will be prefixed, needs to be unique
+  - name: mq8883 # appname will be prefixed, needs to be unique
     protocol: tcp # http, tls, tcp
     port: 8883 # number only
     ingress:
@@ -66,7 +66,7 @@ services:
       tls: "" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
       port: 8883
       path: "/" # prefix regex match
-  - name: mqtt-1883 # appname will be prefixed, needs to be unique
+  - name: mq1883 # appname will be prefixed, needs to be unique
     protocol: tcp # http, tls, tcp
     port: 1883 # number only
     ingress:
@@ -74,6 +74,14 @@ services:
       tls: "" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
       port: 1883
       path: "/" # prefix regex match
+  - name: wp80 # appname will be prefixed, needs to be unique
+    protocol: http # http, tls, tcp
+    port: 80 # number only
+    ingress:
+      enabled: true
+      tls: "" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
+      port: 80
+      path: "/app/" # prefix regex match
 
 # Can only do one of the httpGet and exec handler methods for livenessProbe
 livenessProbe:

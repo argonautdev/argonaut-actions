@@ -202,7 +202,7 @@ spec:
 
         ports:
         {{- range .Values.services }}
-        - name: "{{ $name -}}-{{- .name }}"
+        - name: "{{ $name | trunc 5 -}}-{{- .name }}"
           containerPort: {{ .port }}
           # protocol: {{ .protocol }}
           # ingress: {{ .ingress.enabled }}

@@ -14,7 +14,8 @@ chmod a+x istioctl
 # chmod a+x  _onetimesetup/bin/istioctl
 # ./_onetimesetup/bin/istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
 # Checking if timeout helps with kiali monitoring dashboard creation
-sleep 10s
+kubectl apply -f _onetimesetup/addons/ -n istio-system
+# Retry because first time doesn't create all entities
 kubectl apply -f _onetimesetup/addons/ -n istio-system
 
 

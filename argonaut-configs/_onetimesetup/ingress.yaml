@@ -6,15 +6,15 @@ spec:
   selector:
     istio: ingressgateway # use istio default ingress gateway
   servers:
-    # - port:
-    #     number: 80
-    #     name: http
-    #     protocol: HTTP
-    #   hosts:
-    #     - "aws.tritonhq.io"
-    #     - "argonaut.tritonhq.io"
-    #   # tls:
-    #   #   httpsRedirect: true
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "aws.tritonhq.io"
+        # - "argonaut.tritonhq.io"
+      # tls:
+      #   httpsRedirect: true
     - port:
         number: 443
         name: https

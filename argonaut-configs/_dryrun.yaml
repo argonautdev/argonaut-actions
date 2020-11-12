@@ -28,18 +28,21 @@ spec:
     chart: "argonaut-configs"
     app: "myappname"
   ports: 
-    - name: "myappname-device-backend-3333"
+    - name: "myapp-db3333"
       protocol: TCP # UDP and SCTP are the other options
       port: 3333 
-    - name: "myappname-hasura-8080"
+    - name: "myapp-hs8080"
       protocol: TCP # UDP and SCTP are the other options
       port: 8080 
-    - name: "myappname-mqtt-8883"
+    - name: "myapp-mq8883"
       protocol: TCP # UDP and SCTP are the other options
       port: 8883 
-    - name: "myappname-mqtt-1883"
+    - name: "myapp-mq1883"
       protocol: TCP # UDP and SCTP are the other options
-      port: 1883
+      port: 1883 
+    - name: "myapp-wp80"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 80
 ---
 # Source: argonaut-configs/templates/statefulset.yaml
 apiVersion: apps/v1
@@ -105,21 +108,25 @@ spec:
         imagePullPolicy: "IfNotPresent"
 
         ports:
-        - name: "myappname-device-backend-3333"
+        - name: "myapp-db3333"
           containerPort: 3333
           # protocol: tls
           # ingress: true
-        - name: "myappname-hasura-8080"
+        - name: "myapp-hs8080"
           containerPort: 8080
           # protocol: tls
           # ingress: true
-        - name: "myappname-mqtt-8883"
+        - name: "myapp-mq8883"
           containerPort: 8883
           # protocol: tcp
           # ingress: true
-        - name: "myappname-mqtt-1883"
+        - name: "myapp-mq1883"
           containerPort: 1883
           # protocol: tcp
+          # ingress: true
+        - name: "myapp-wp80"
+          containerPort: 80
+          # protocol: http
           # ingress: true
         resources:
           requests:
@@ -134,7 +141,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: "myappname-device-backend-3333-vs"
+  name: "myappname-db3333-vs"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
@@ -144,7 +151,7 @@ spec:
   hosts:
     - aws.tritonhq.io
   gateways:
-    -   name: ingress-gateway
+    - istio-system/ingress-gateway
   exportTo:
     - "*" # TBD - env interaction
   http:
@@ -161,7 +168,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: "myappname-hasura-8080-vs"
+  name: "myappname-hs8080-vs"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
@@ -171,7 +178,7 @@ spec:
   hosts:
     - aws.tritonhq.io
   gateways:
-    -   name: ingress-gateway
+    - istio-system/ingress-gateway
   exportTo:
     - "*" # TBD - env interaction
   http:
@@ -188,7 +195,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: "myappname-mqtt-8883-vs"
+  name: "myappname-mq8883-vs"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
@@ -198,7 +205,7 @@ spec:
   hosts:
     - aws.tritonhq.io
   gateways:
-    -   name: ingress-gateway
+    - istio-system/ingress-gateway
   exportTo:
     - "*" # TBD - env interaction
   # tcp implementation
@@ -215,7 +222,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: "myappname-mqtt-1883-vs"
+  name: "myappname-mq1883-vs"
   labels:
     heritage: "Helm"
     release: "RELEASE-NAME"
@@ -225,7 +232,7 @@ spec:
   hosts:
     - aws.tritonhq.io
   gateways:
-    -   name: ingress-gateway
+    - istio-system/ingress-gateway
   exportTo:
     - "*" # TBD - env interaction
   # tcp implementation
@@ -237,3 +244,30 @@ spec:
         host: "myappname.dev.svc.cluster.local"
         port:
           number: 1883
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "myappname-wp80-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "myappname"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    - istio-system/ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  http:
+    - match:
+        - uri:
+            prefix: /wp/
+      route:
+        - destination:
+            port:
+              number: 80
+            host: "myappname.dev.svc.cluster.local"

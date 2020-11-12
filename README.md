@@ -213,3 +213,4 @@ kubectl -n istio-system get clusterissuers.cert-manager.io
 3. HTTP-01 solver for cert manager can not be used for wildcard domains. For that, use DNS solver
 4. GitLab protected secrets run only on protected branches. Also,there might be issues with secrets that have '\$' in them
 5. ArgoCD to track specific branch with `--revision` args.
+6. Stateful set port names should be < 15 char
