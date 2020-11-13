@@ -205,7 +205,6 @@ spec:
         - name: "{{ $name | trunc 5 -}}-{{- .name }}"
           containerPort: {{ .port }}
           # protocol: {{ .protocol }}
-          # ingress: {{ .ingress.enabled }}
         {{- end }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}

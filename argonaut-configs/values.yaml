@@ -1,6 +1,6 @@
 ---
 version: "v1"
-appName: "myappname"
+appName: "nginx"
 env: "dev"
 
 host: "aws.tritonhq.io"
@@ -37,14 +37,14 @@ volumeClaimTemplate:
       storage: "600M"
 
 services:
-  - name: db3333 # appname will be prefixed, needs to be unique
-    protocol: tls # http, tls, tcp
-    port: 3333 # number only
+  - name: nh7-8080 # appname will be prefixed, needs to be unique
+    protocol: http # http, tls, tcp
+    port: 8080 # number only
     ingress:
-      enabled: true
-      tls: "terminated" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
-      port: 443
-      path: "/device-backend/" # prefix regex match
+      enabled: false
+      tls: "" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
+      port: 8080
+      path: "" # prefix regex match
       # httpsRedirect: false # TBD implementation - can't be set at service level but will need to be cluster level
       # hosts: # OR matched
       #   - "*"
@@ -65,7 +65,6 @@ services:
       enabled: true
       tls: "" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
       port: 8883
-      path: "/" # prefix regex match
   - name: mq1883 # appname will be prefixed, needs to be unique
     protocol: tcp # http, tls, tcp
     port: 1883 # number only
@@ -73,7 +72,6 @@ services:
       enabled: true
       tls: "" # "terminated" or "" (not applicable) or "passthrough" (to be implemented)
       port: 1883
-      path: "/" # prefix regex match
   - name: nx80 # appname will be prefixed, needs to be unique
     protocol: http # http, tls, tcp
     port: 80 # number only
