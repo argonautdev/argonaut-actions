@@ -199,12 +199,17 @@ spec:
 {{ toYaml .Values.securityContext | indent 10 }}
         image: "{{ template "argonaut-deployment.imageName" . }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
-
         ports:
         {{- range .Values.services }}
         - name: "{{ $name | trunc 5 -}}-{{- .name }}"
           containerPort: {{ .port }}
           # protocol: {{ .protocol }}
+        {{- end }}
+        {{- if .Values.entrypoint }}
+        command: {{ .Values.entrypoint }}
+        {{- end }}
+        {{- if .Values.cmd }}
+        args: {{ .Values.cmd }}
         {{- end }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
@@ -217,7 +222,7 @@ spec:
 {{ toYaml .Values.envFrom | indent 10 }}
 {{- end }}
         # initContainer volume mount needs to be enabled in the template
-        volumeMounts: []
+        volumeMounts: []  # TODO to be implemented
 {{ if .Values.keystore }}
           - name: keystore
             mountPath: /usr/share/"{{ template "argonaut-deployment.uname" . }}"/config/"{{ template "argonaut-deployment.uname" . }}".keystore

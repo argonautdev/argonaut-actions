@@ -12,7 +12,7 @@ imagePullPolicy: "IfNotPresent" # If imageTag = "latest", set this to "Always"
 imagePullSecrets:
   - name: image-pull-secret
 
-replicas: 2
+replicas: 1
 resources:
   requests:
     cpu: "100m"
@@ -35,6 +35,9 @@ volumeClaimTemplate:
   resources:
     requests:
       storage: "600M"
+
+entrypoint: ["echo"]
+cmd: ["Hello World"]
 
 services:
   - name: nh7-8080 # appname will be prefixed, needs to be unique
