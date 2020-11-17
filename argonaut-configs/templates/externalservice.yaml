@@ -26,5 +26,20 @@ spec:
   resolution: {{ .resolution }} # DNS
   location: {{ .location }}
 ---
+{{- $svcName := .name -}}
+{{- range .hosts }}
+kind: Service
+apiVersion: v1
+metadata:
+ name: {{ $svcName | quote }}
+ labels:
+    heritage: {{ $releaseService | quote }}
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+spec:
+ type: ExternalName
+ externalName: {{ . }}
+---
+{{- end }}
 {{- end }}
 

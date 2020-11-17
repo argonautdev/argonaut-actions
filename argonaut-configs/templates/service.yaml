@@ -4,6 +4,7 @@
 {{- $releaseService := .Release.Service -}}
 {{- $version := .Values.version | default .Release.Revision -}}
 
+{{- if .Values.services -}}
 kind: Service
 apiVersion: v1
 metadata:
@@ -27,3 +28,4 @@ spec:
       port: {{ .port }}
     {{- end }}
 ---
+{{- end -}}

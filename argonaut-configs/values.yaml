@@ -129,6 +129,19 @@ readinessProbe:
 
 ########################################################################################
 
+externalServices:
+  []
+  # - name: rds-postgres
+  #   hosts: # Supports only one host
+  #     - database-1.clo0rbqzxdpa.us-east-2.rds.amazonaws.com
+  #   ports:
+  #     - number: 5432
+  #       name: postgresql
+  #       protocol: TCP
+  #   resolution: NONE # DNS
+  #   location: MESH_EXTERNAL
+  #   # tls: Disabled   # TO BE IMPLEMENTED
+
 nameOverride: ""
 
 keystore: []

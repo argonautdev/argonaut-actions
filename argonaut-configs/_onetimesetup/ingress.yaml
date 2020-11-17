@@ -97,7 +97,7 @@ spec:
   http:
     - match:
         - uri:
-            prefix: /
+            exact: / # TODO: replace with regex if POST doesn't work because exact
       route:
         - destination:
             host: argocd-server.argocd.svc.cluster.local
