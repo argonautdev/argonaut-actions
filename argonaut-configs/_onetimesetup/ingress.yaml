@@ -42,29 +42,6 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: "hasura"
-spec:
-  hosts:
-    - "aws.tritonhq.io"
-  gateways:
-    - ingress-gateway
-  exportTo:
-    - "*"
-  http:
-    - match:
-        - uri:
-            prefix: /hasura/
-      route:
-        - destination:
-            port:
-              number: 8080
-            host: hasura.dev.svc.cluster.local
----
-
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
   name: "grafana-ingress"
 spec:
   hosts:
@@ -126,66 +103,3 @@ spec:
             host: kiali.istio-system.svc.cluster.local
 ---
 
----
-# apiVersion: networking.istio.io/v1alpha3
-# kind: VirtualService
-# metadata:
-#   name: "device-backend"
-# spec:
-#   hosts:
-#     - "aws.tritonhq.io"
-#   gateways:
-#     - ingress-gateway
-#   exportTo:
-#     - "*"
-#   http:
-#     - match:
-#         - uri:
-#             prefix: /device-backend/
-#       route:
-#         - destination:
-#             port:
-#               number: 3333
-#             host: device-backend.dev.svc.cluster.local
-# ---
-# apiVersion: networking.istio.io/v1alpha3
-# kind: VirtualService
-# metadata:
-#   name: "mqtt-1883"
-# spec:
-#   hosts:
-#     - "aws.tritonhq.io"
-#   gateways:
-#     - ingress-gateway
-#   exportTo:
-#     - "*"
-#   tcp:
-#     - match:
-#         - port: 1883
-#       route:
-#         - destination:
-#             port:
-#               number: 1883
-#             host: beamd.dev.svc.cluster.local
-# ---
-# # Source: argonaut-configs/templates/ingress.yaml
-# apiVersion: networking.istio.io/v1alpha3
-# kind: VirtualService
-# metadata:
-#   name: "mqtt-8883"
-# spec:
-#   hosts:
-#     - "aws.tritonhq.io"
-#   gateways:
-#     - ingress-gateway
-#   exportTo:
-#     - "*"
-#   tcp:
-#     - match:
-#         - port: 8883
-#       route:
-#         - destination:
-#             port:
-#               number: 8883
-#             host: beamd.dev.svc.cluster.local
-# ---

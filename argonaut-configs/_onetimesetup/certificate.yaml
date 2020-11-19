@@ -6,7 +6,7 @@ metadata:
 spec:
   # Secret names are always required.
   secretName: ingress-letsencrypt
-  duration: 8640h # 90d
+  duration: 8640h #
   renewBefore: 720h # 15d
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:

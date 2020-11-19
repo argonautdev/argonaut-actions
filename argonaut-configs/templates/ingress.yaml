@@ -38,28 +38,30 @@ spec:
       route:
         - destination:
             port:
-              number: {{ .ingress.port }}
+              number: {{ .port }}
             host: "{{- $name -}} .dev.svc.cluster.local"
   {{- else if and (eq .protocol "tls") (eq .ingress.tls "passthrough") -}}
   # https implementation
   https:
     - match:
-      - port: {{ .port }}
+      - port: {{ .ingress.port }}
         sniHosts:
         - {{ $host }}
       route:
       - destination:
           host: "{{- $name -}} .dev.svc.cluster.local"
+          port:
+            number: {{ .port }}
   {{- else if eq .protocol "tcp" }}
   # tcp implementation
   tcp:
   - match:
-    - port: {{ .port }}
+    - port: {{ .ingress.port }}
     route:
     - destination:
         host: "{{- $name -}} .dev.svc.cluster.local"
         port:
-          number: {{ .ingress.port }}
+          number: {{ .port }}
   {{- end -}}
 {{- end }}
 ---
