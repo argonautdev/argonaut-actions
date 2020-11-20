@@ -12,7 +12,7 @@ spec:
         protocol: HTTP
       hosts:
         - "aws.tritonhq.io"
-        # - "argonaut.tritonhq.io"
+        - "tools.tritonhq.io"
       # tls:
       #   httpsRedirect: true
     - port:
@@ -24,7 +24,7 @@ spec:
         credentialName: ingress-letsencrypt # must be the same as secret
       hosts:
         - "aws.tritonhq.io"
-        - "argonaut.tritonhq.io"
+        - "tools.tritonhq.io"
     - port:
         number: 1883
         name: tcp-mqtt-1833
@@ -45,7 +45,7 @@ metadata:
   name: "grafana-ingress"
 spec:
   hosts:
-    - "argonaut.tritonhq.io"
+    - "tools.tritonhq.io"
   gateways:
     - ingress-gateway
   exportTo:
@@ -53,12 +53,16 @@ spec:
   http:
     - match:
         - uri:
-            prefix: /grafana/
+            prefix: "/grafana/"
+        - uri:
+            exact: "/grafana"
+      rewrite:
+        uri: "/grafana/"
       route:
         - destination:
             port:
-              number: 3000
-            host: grafana.istio-system.svc.cluster.local
+              number: 80
+            host: grafana.observability.svc.cluster.local
 ---
 
 ---
@@ -68,13 +72,17 @@ metadata:
   name: "argocd-ingress"
 spec:
   hosts:
-    - "argonaut.tritonhq.io"
+    - "tools.tritonhq.io"
   gateways:
     - ingress-gateway
   http:
     - match:
         - uri:
-            prefix: / # TODO: replace with regex if POST doesn't work because exact
+            prefix: "/argocd/"
+        - uri:
+            exact: "/argocd"
+      rewrite:
+        uri: "/argocd/"
       route:
         - destination:
             host: argocd-server.argocd.svc.cluster.local
@@ -87,7 +95,7 @@ metadata:
   name: "kiali-ingress"
 spec:
   hosts:
-    - "argonaut.tritonhq.io"
+    - "tools.tritonhq.io"
   gateways:
     - ingress-gateway
   exportTo:
@@ -95,7 +103,11 @@ spec:
   http:
     - match:
         - uri:
-            prefix: /kiali/
+            prefix: "/kiali/"
+        - uri:
+            exact: "/kiali"
+      rewrite:
+        uri: "/kiali/"
       route:
         - destination:
             port:
