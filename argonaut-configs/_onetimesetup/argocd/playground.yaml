@@ -20,6 +20,20 @@ server:
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     hosts:
       - "*"
+
+  spec:
+    template:
+      spec:
+        name: argocd-server
+        containers:
+          - command:
+              - /argocd-server
+              - --staticassets
+              - /shared/app
+              - --repo-server
+              - argocd-repo-server:8081
+              - --rootpath # Imp to have in production
+              - /argocd
 ---
 # PROJECTS
 
@@ -53,23 +67,23 @@ spec:
 ---
 istio install
 helm template install/kubernetes/helm/istio - name istio
-- set tracing.enabled=false
-- set ingress.enabled=false
+- set tracing.enabled=true
+- set ingress.enabled=true
 - set gateways.istio-ingressgateway.enabled=true
 - set gateways.istio-ingressgateway.sds.enabled=true
-- set gateways.istio-egressgateway.enabled=true
-- set servicegraph.enabled=false
+- set gateways.istio-egressgateway.enabled=false
+- set servicegraph.enabled=true
 - set kiali.enabled=true
 - set kiali.dashboard.jaegerURL=https://jaeger.local.domain
 - set kiali.prometheusAddr=http://prometheus-k8s.monitoring:9090
 - set kiali.dashboard.grafanaURL=http://grafana.monitoring:3000
 - set prometheus.enabled=false
 - set grafana.enabled=false
-- set global.proxy.autoInject=disabled
+- set global.proxy.autoInject=true
 - set global.k8sIngressSelector=ingressgateway
 - set global.k8sIngressHttps=false
 - set global.tracer.zipkin.address=zipkin.monitoring:9411
-- set global.outboundTrafficPolicy.mode=REGISTRY_ONLY
+- set global.outboundTrafficPolicy.mode=ALLOW_ALL
 - set galley.enabled=true
 - set global.proxy.accessLogFile="/dev/stdout"
 - namespace istio-system > install/kubernetes/generated.yaml

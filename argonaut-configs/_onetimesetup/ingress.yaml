@@ -74,7 +74,7 @@ spec:
   http:
     - match:
         - uri:
-            exact: / # TODO: replace with regex if POST doesn't work because exact
+            prefix: / # TODO: replace with regex if POST doesn't work because exact
       route:
         - destination:
             host: argocd-server.argocd.svc.cluster.local

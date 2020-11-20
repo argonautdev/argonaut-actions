@@ -1,0 +1,326 @@
+---
+# Source: argonaut-configs/templates/poddisruptionbudget.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "nginx-pdb"
+spec:
+  maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: "nginx"
+---
+# Source: argonaut-configs/templates/service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: "nginx"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    version: "v1"
+    app: "nginx"
+spec:
+  type: ClusterIP
+  selector:
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "nginx"
+  ports: 
+    - name: "nginx-nh7-8080"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 8080 
+    - name: "nginx-hs8080"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 8080 
+    - name: "nginx-mq8883"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 8883 
+    - name: "nginx-mq1883"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 1883 
+    - name: "nginx-nx80"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 80 
+    - name: "nginx-nx443"
+      protocol: TCP # UDP and SCTP are the other options
+      port: 443
+---
+# Source: argonaut-configs/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "nginx"
+    version: "v1"
+  annotations:
+    {}
+spec:
+  serviceName: nginx
+  selector:
+    matchLabels:
+      app: "nginx"
+  replicas: 1
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      name: "storage-vol-0"
+      labels:
+        heritage: "Helm"
+        release: "RELEASE-NAME"
+        chart: argonaut-configs
+        app: nginx
+    spec:
+      storageClassName: "ebs-gp2-resizable"
+      accessModes:
+        - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: "600M"
+  template:
+    metadata:
+      name: "nginx"
+      labels:
+        heritage: "Helm"
+        release: "RELEASE-NAME"
+        chart: "argonaut-configs"
+        app: "nginx"
+      annotations:
+        
+    spec:
+      securityContext:
+        {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - "nginx"
+      terminationGracePeriodSeconds: 120
+      # Mount Secrets
+      volumes:
+      # Persistence Enabled - volume mounts
+        - name: "storage-vol-0"
+          mountPath: "/usr/share/appdata"
+      # extraConfig
+      imagePullSecrets:
+        - name: image-pull-secret
+      initContainers:
+
+      containers:
+      - name: "argonaut-configs"
+        securityContext:
+          {}
+        image: "nginx:latest"
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - name: "nginx-nh7-8080"
+          containerPort: 8080
+          # protocol: http
+        - name: "nginx-hs8080"
+          containerPort: 8080
+          # protocol: tls
+        - name: "nginx-mq8883"
+          containerPort: 8883
+          # protocol: tcp
+        - name: "nginx-mq1883"
+          containerPort: 1883
+          # protocol: tcp
+        - name: "nginx-nx80"
+          containerPort: 80
+          # protocol: http
+        - name: "nginx-nx443"
+          containerPort: 443
+          # protocol: tls
+        command: [echo]
+        args: [Hello World]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200M
+        env:
+        volumeMounts: []  # For initcontainer
+---
+# Source: argonaut-configs/templates/ingress.yaml
+# Configure Virtual Services
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "nginx-nh7-8080-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "nginx"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    - istio-system/ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  http:
+    - match:
+        - uri:
+            prefix: 
+      rewrite:
+        uri: "/" # 
+      route:
+        - destination:
+            port:
+              number: 8080
+            host: "nginx.dev.svc.cluster.local"
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "nginx-hs8080-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "nginx"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    - istio-system/ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  http:
+    - match:
+        - uri:
+            prefix: /hasura/
+      rewrite:
+        uri: "/" # /hasura/
+      route:
+        - destination:
+            port:
+              number: 8080
+            host: "nginx.dev.svc.cluster.local"
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "nginx-mq8883-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "nginx"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    - istio-system/ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  # tcp implementation
+  tcp:
+  - match:
+    - port: 8883
+    route:
+    - destination:
+        host: "nginx.dev.svc.cluster.local"
+        port:
+          number: 8883
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "nginx-mq1883-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "nginx"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    - istio-system/ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  # tcp implementation
+  tcp:
+  - match:
+    - port: 1883
+    route:
+    - destination:
+        host: "nginx.dev.svc.cluster.local"
+        port:
+          number: 1883
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "nginx-nx80-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "nginx"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    - istio-system/ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  http:
+    - match:
+        - uri:
+            prefix: /app/
+      rewrite:
+        uri: "/" # /app/
+      route:
+        - destination:
+            port:
+              number: 80
+            host: "nginx.dev.svc.cluster.local"
+---
+# Source: argonaut-configs/templates/ingress.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "nginx-nx443-vs"
+  labels:
+    heritage: "Helm"
+    release: "RELEASE-NAME"
+    chart: "argonaut-configs"
+    app: "nginx"
+spec:
+  hosts:
+    - aws.tritonhq.io
+  gateways:
+    - istio-system/ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  http:
+    - match:
+        - uri:
+            prefix: /app/
+      rewrite:
+        uri: "/" # /app/
+      route:
+        - destination:
+            port:
+              number: 443
+            host: "nginx.dev.svc.cluster.local"

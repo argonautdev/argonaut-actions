@@ -9,8 +9,8 @@ managedNodeGroups:
     # instanceType: t2.micro
     instanceType: t3a.small
     minSize: 1
-    maxSize: 3
-    desiredCapacity: 3
+    maxSize: 5
+    desiredCapacity: 5
     volumeSize: 15
     volumeType: gp2
     tags:

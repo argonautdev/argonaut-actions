@@ -21,20 +21,10 @@ resources:
   #   cpu: "200m"
   #   memory: "256M"
 
-persistence:
-  enabled: false
-  labels: {}
-  annotations: {}
-  volumeMounts:
-    - name: "appVolumeMount"
-      mountPath: "/usr/share/myapp/data"
-
-volumeClaimTemplate:
-  accessModes: ["ReadWriteOnce"]
-  storageClassName: "standard"
-  resources:
-    requests:
-      storage: "600M"
+persistentStorage: # Leave blank if no persistent storage is required
+  - capacity: "600M"
+    mountPath: "/usr/share/appdata"
+    accessMode: "ReadWriteOnce" # ReadWriteOnce and ReadOnlyMany are supported
 
 entrypoint: ["echo"]
 cmd: ["Hello World"]
@@ -228,11 +218,12 @@ priorityClassName: ""
 
 # By default this will make sure two pods don't end up on the same node
 # Changing this to a region would allow you to spread pods across regions
+# This doesn't apply if antiAffinity is not set
 antiAffinityTopologyKey: "kubernetes.io/hostname"
 
-# Hard means that by default pods will only be scheduled if there are enough nodes for them
-# and that they will never end up on the same node. Setting this to soft will do this "best effort"
-antiAffinity: "soft"
+# "hard" means that by default pods will only be scheduled if there are enough nodes for them
+# and that they will never end up on the same node. Setting this to "soft" will do this best effort
+antiAffinity: ""
 
 # This is the node affinity settings as defined in
 # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#node-affinity-beta-feature

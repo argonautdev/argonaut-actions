@@ -101,7 +101,7 @@ echo "Creating argo app"
 echo 'argocd app create "$APP_NAME-rel" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git --revision "dockerfile" --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert'
 argocd app create "$APP_NAME-rel" --repo "https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git" --revision "dockerfile" --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert
 echo "Syncing argo app"
-argocd app sync "$APP_NAME-rel"
+argocd app sync "$APP_NAME-rel" --force
 
 cd ../
 

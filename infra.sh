@@ -7,7 +7,7 @@ eksctl create cluster -f _onetimesetup/awsclusterconfig.yaml
 
 # Install ISTIO and the observability stack
 curl -L https://istio.io/downloadIstio | sh -
-mv istio-1.7.4/bin/istioctl .
+mv istio-1.8.0/bin/istioctl .
 chmod a+x istioctl
 ./istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
 
@@ -35,6 +35,9 @@ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/relea
 sleep 20s
 kubectl -n istio-system apply -f _onetimesetup/certificate-issuer.yaml 
 kubectl -n istio-system apply -f _onetimesetup/certificate.yaml   # Needs wait if secret needs creation
+
+# Setup Storage Class to be used by applications
+kubectl -n istio-system apply -f _onetimesetup/storage-class.yaml
 
 # Install argocd
 kubectl create namespace argocd
@@ -66,7 +69,7 @@ kubectl label namespace dev istio-injection=enabled
 # Clickhouse
 # Hasura
 
-rm -rf istio-1.7.4/
+rm -rf istio-1.8.0/
 rm istioctl
 
 # Print hostname for DNS

@@ -1,4 +1,7 @@
 {{- $name := include "argonaut-deployment.uname" . -}}
+{{- $releaseService := .Release.Service | quote -}}
+{{- $releaseName := .Release.Name | quote -}}
+{{- $chartName := .Chart.Name -}}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -24,24 +27,24 @@ spec:
   podManagementPolicy: {{ .Values.podManagementPolicy }}
   updateStrategy:
     type: {{ .Values.updateStrategy }}
-  {{- if .Values.persistence.enabled }}
+  {{- if .Values.persistentStorage }}
   volumeClaimTemplates:
+  {{- range $index, $volumeMount := .Values.persistentStorage }}
   - metadata:
-      name: {{ template "argonaut-deployment.uname" . }}
+      name: "storage-vol-{{ $index }}"
       labels:
-        heritage: {{ .Release.Service | quote }}
-        release: {{ .Release.Name | quote }}
-        chart: "{{ .Chart.Name }}"
-        app: "{{ template "argonaut-deployment.uname" . }}"
-        {{- range $key, $value := .Values.labels }}
-        {{ $key }}: {{ $value | quote }}
-        {{- end }}
-    {{- with .Values.persistence.annotations  }}
-      annotations:
-{{ toYaml . | indent 8 }}
-    {{- end }}
+        heritage: {{ $releaseService }}
+        release: {{ $releaseName }}
+        chart: {{ $chartName }}
+        app: {{ $name }}
     spec:
-{{ toYaml .Values.volumeClaimTemplate | indent 6 }}
+      storageClassName: "ebs-gp2-resizable"
+      accessModes:
+        - {{ $volumeMount.accessMode | quote }}
+      resources:
+        requests:
+          storage: {{ $volumeMount.capacity | quote }}
+  {{- end }}
   {{- end }}
   template:
     metadata:
@@ -128,13 +131,6 @@ spec:
             defaultMode: {{ .defaultMode }}
             {{- end }}
         {{- end }}
-      # Persistence Enabled - volume mounts
-        {{- if .Values.persistence.enabled }}
-        {{- range $index, $volumeMount := .Values.persistence.volumeMounts }}
-        - name: "{{ $volumeMount.name }}"
-          mountPath: "{{ $volumeMount.mountPath }}"
-        {{ end }}
-        {{ end }}
       # extraConfig
         {{- if .Values.extraConfig }}
         - name: extraconfig
@@ -221,8 +217,14 @@ spec:
         envFrom:
 {{ toYaml .Values.envFrom | indent 10 }}
 {{- end }}
-        # initContainer volume mount needs to be enabled in the template
-        volumeMounts: []  # TODO to be implemented
+        # Persistence Enabled - volume mounts
+        {{- if .Values.persistentStorage }}
+        volumeMounts:
+          {{- range $index, $volumeMount := .Values.persistentStorage }}
+          - name: "storage-vol-{{ $index }}"
+            mountPath: "{{ $volumeMount.mountPath }}"
+          {{- end }}
+        {{- end }}
 {{ if .Values.keystore }}
           - name: keystore
             mountPath: /usr/share/"{{ template "argonaut-deployment.uname" . }}"/config/"{{ template "argonaut-deployment.uname" . }}".keystore
