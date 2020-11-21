@@ -91,7 +91,7 @@ helm upgrade --install grafana grafana/grafana -n tools -f _onetimesetup/helm-va
 helm upgrade --install loki loki/loki -n tools -f _onetimesetup/helm-values/loki.yaml
 
 # ## FluentBit - already added the charts for loki
-helm upgrade --install fluent-bit loki/fluent-bit -n tools -f _onetimesetup/helm-values/fluentbit.yaml 
+helm upgrade --install fluent-bit loki/fluent-bit -n tools -f _onetimesetup/helm-values/fluent-bit-loki.yaml 
 
 # # FluentBit official install 
 # helm repo add fluent https://fluent.github.io/helm-charts
