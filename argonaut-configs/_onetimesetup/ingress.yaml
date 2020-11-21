@@ -62,7 +62,7 @@ spec:
         - destination:
             port:
               number: 80
-            host: grafana.observability.svc.cluster.local
+            host: grafana.tools.svc.cluster.local
 ---
 
 ---
@@ -78,11 +78,11 @@ spec:
   http:
     - match:
         - uri:
-            prefix: "/argocd/"
+            prefix: "/"
         - uri:
-            exact: "/argocd"
+            exact: "/"
       rewrite:
-        uri: "/argocd/"
+        uri: "/"
       route:
         - destination:
             host: argocd-server.argocd.svc.cluster.local

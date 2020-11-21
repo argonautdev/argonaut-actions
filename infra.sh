@@ -5,11 +5,14 @@ cd argonaut-configs
 # Setup EKS cluster
 eksctl create cluster -f _onetimesetup/awsclusterconfig.yaml
 
+# If create cluster fails after control plane and before nodegroup setup, kubeconfig is not updated
+# aws eks --region us-east-2 update-kubeconfig --name "shadow"
+
 # Install ISTIO and the observability stack
 curl -L https://istio.io/downloadIstio | sh -
 mv istio-1.8.0/bin/istioctl .
 chmod a+x istioctl
-./istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
+./istioctl install --set profile=default -y -f _onetimesetup/istio-setup.yaml
 
 # chmod a+x  _onetimesetup/bin/istioctl
 # ./_onetimesetup/bin/istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml
@@ -38,6 +41,9 @@ kubectl -n istio-system apply -f _onetimesetup/certificate.yaml   # Needs wait i
 
 # Setup Storage Class to be used by applications
 kubectl -n istio-system apply -f _onetimesetup/storage-class.yaml
+# Unset gp2 as default storage class since we are defining our own
+kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
 
 # Install argocd
 kubectl create namespace argocd
@@ -72,7 +78,31 @@ kubectl label namespace dev istio-injection=enabled
 rm -rf istio-1.8.0/
 rm istioctl
 
+# # HELM INSTALLS
+## INSTALL HELM FIRST - TODO
+kubectl create namespace tools
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo add loki https://grafana.github.io/loki/charts
+# ## Grafana
+helm repo update
+helm upgrade --install grafana grafana/grafana -n tools -f _onetimesetup/helm-values/grafana.yaml
+
+# ## Loki
+helm upgrade --install loki loki/loki -n tools -f _onetimesetup/helm-values/loki.yaml
+
+# ## FluentBit - already added the charts for loki
+helm upgrade --install fluent-bit loki/fluent-bit -n tools -f _onetimesetup/helm-values/fluentbit.yaml 
+
+# # FluentBit official install 
+# helm repo add fluent https://fluent.github.io/helm-charts
+# helm repo add elastic https://helm.elastic.co
+# helm repo update
+
+# helm upgrade --install fluent-bit fluent/fluent-bit -n tools -f _onetimesetup/helm-values/fluent-bit.yaml 
+# helm upgrade --install elasticsearch elastic/elasticsearch -n tools -f _onetimesetup/helm-values/elasticsearch.yaml
+# helm upgrade --install kibana elastic/kibana -n tools -f _onetimesetup/helm-values/kibana.yaml
+# helm upgrade --install apm-server elastic/apm-server -n tools -f _onetimesetup/helm-values/elastic-apm.yaml
+
 # Print hostname for DNS
 echo "ADD THIS loadbalancer ip TO YOUR DNS at aws.tritonhq.io AND argonaut.tritonhq.io"
 kubectl get -n istio-system services | grep ingress
-
