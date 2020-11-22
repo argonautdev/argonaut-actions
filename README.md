@@ -92,12 +92,12 @@ kubectl create secret docker-registry regsecret --docker-server=ghcr.io --docker
 # ISTIO setup and addons
 
 1. install istioctl
-   `istioctl install --set profile=default`
+   `istioctl install --set profile=default -y`
 2. install prometheus, kiali etc from istioctl download package
    `curl -L https://istio.io/downloadIstio | sh -`
 3. `kubectl create ns dev`
    `kubectl label namespace dev istio-injection=enabled`
-   `kubectl apply -f scratch/istio-1.7.4/samples/addons/ -n istio-system`
+   `kubectl apply -f scratch/istio-1.8.0/samples/addons/ -n istio-system`
    `helm install wp charts/bitnami/wordpress -n dev`
    `istioctl dashboard grafana`
    `istioctl dashboard kiali`
@@ -110,10 +110,12 @@ Fill values into templates using `helm template . > _dryrun.yaml`
 
 # ISTIO
 
-istioctl install --set profile=default -f \_onetimesetup/istio-setup.yaml
+```
+istioctl install --set profile=default -f _onetimesetup/istio-setup.yaml -y
 kubectl create ns dev
 kubectl label namespace dev istio-injection=enabled
 kubectl create ns monitoring
+```
 
 ## Prometheus
 
@@ -161,18 +163,6 @@ Get the PushGateway URL by running these commands in the same shell:
 https://prometheus.io/docs/prometheus/latest/configuration/configuration/
 https://istio.io/latest/docs/ops/best-practices/observability/#using-prometheus-for-production-scale-monitoring
 
-## Grafana
-
-helm repo add grafana https://grafana.github.io/helm-charts
-v7.3.1 (6668161a88)
-
-# Useful charts
-
-https://grafana.com/grafana/dashboards/139
-https://grafana.com/grafana/dashboards/8588
-https://grafana.com/grafana/dashboards/455
-https://grafana.com/grafana/dashboards/707
-
 ## Jaeger
 
 helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
@@ -215,3 +205,65 @@ kubectl -n istio-system get clusterissuers.cert-manager.io
 5. ArgoCD to track specific branch with `--revision` args.
 6. Stateful set port names should be < 15 char
 7. Services are set to `httpRewrite` path "/" by default
+8. There is a max limit to number of pods per node. That can be set in eksctl in extra config
+
+---
+
+# Grafana dashboards
+
+http://tools.tritonhq.io:3000/grafana/goto/h7dj6yTMk
+
+### Useful charts
+
+https://grafana.com/grafana/dashboards/139
+https://grafana.com/grafana/dashboards/8588
+https://grafana.com/grafana/dashboards/455
+https://grafana.com/grafana/dashboards/707
+
+7630
+7636
+7645
+12153 - maybe not
+11454
+7249 -> needs to be fixed before use
+8588
+
+### AWS
+
+707
+139 - doesn't work
+650 - load balancer, N/A
+617 - EC2
+575 - S3
+
+# Scheduling and Autoscaling - hpa and nodegroups
+
+```
+eksctl create nodegroup --config-file=/Users/suryaoruganti/company/app-actions/argonaut-configs/_onetimesetup/awsclusterconfig.yaml --include="spot-1"
+eksctl --cluster shadow delete nodegroup spot-1
+eksctl get --cluster shadow nodegroup
+
+eksctl scale nodegroup --cluster=<clusterName> --nodes=<desiredCount> --name=<nodegroupName> [ --nodes-min=<minSize> ] [ --nodes-max=<maxSize> ]
+eksctl scale nodegroup --cluster=shadow --nodes=0 --name=spot-1 --nodes-min=0
+
+eksctl delete cluster -f argonaut-configs/_onetimesetup/awsclusterconfig.yaml
+```
+
+## Strategy is important
+
+1. Need to have strategy to scale up nodes and nodegroups based on k8s pod states and descriptions - Insufficient memory, OOMKilled, Too many pods, Insufficient CPU, affinity rules
+2. Geometric progression of nodegroups?
+3. Need to have strategy to scale pods horizontally
+4. Resource management per service to be handled
+
+## TODO
+
+1. Figure out how to do capacity rebalancing for spot instances
+
+# Kubectl fu
+
+```
+kubectl -n dev exec hasura-0 -it bash
+kubectl -n dev logs hasura-0 argonaut-configs
+kubectl logs -n istio-system $(kubectl get pod -l istio=ingressgateway -n istio-system -o jsonpath={.items..metadata.name})
+```

@@ -6,7 +6,7 @@ spec:
       k8s:
         resources:
           requests:
-            cpu: 250m # override from default 500m
+            cpu: 250m # TODO: override from default 500m
             memory: 512Mi # ... default 2048Mi
     egressGateways:
       - name: istio-egressgateway

@@ -7,9 +7,12 @@ nodeGroups:
   - name: spot-1
     availabilityZones: ["us-east-2b"]
     instancePrefix: "argonaut"
-    minSize: 1
+    minSize: 0
     maxSize: 5
-    desiredCapacity: 3
+    desiredCapacity: 4
+    # kubeletExtraConfig:
+    #   # maxPods: 100
+    #   podsPerCore: 10
     volumeSize: 10
     volumeType: gp2
     # volumeEncrypted: true

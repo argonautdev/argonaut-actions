@@ -78,14 +78,14 @@ spec:
   http:
     - match:
         - uri:
-            prefix: "/"
+            prefix: "/argocd/"
         - uri:
-            exact: "/"
+            exact: "/argocd"
       rewrite:
-        uri: "/"
+        uri: "/argocd/"
       route:
         - destination:
-            host: argocd-server.argocd.svc.cluster.local
+            host: argocd-server.tools.svc.cluster.local
             port:
               number: 443
 ---

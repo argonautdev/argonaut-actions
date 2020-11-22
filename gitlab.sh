@@ -60,8 +60,6 @@ aws eks --region us-east-2 update-kubeconfig --name $CLUSTER_NAME
 echo "Installing ArgoCD CLI"
 
 export ARGOCD_SERVER="tools.tritonhq.io"
-# export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output .status.loadBalancer.ingress[0].hostname`
-# export ARGO_PWD=`kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2`
 export ARGO_PWD="1234567890"
 
 curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v1.7.8/argocd-linux-amd64
