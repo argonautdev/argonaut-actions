@@ -16,6 +16,8 @@ spec:
     outboundTrafficPolicy:
       mode: ALLOW_ANY
       # mode: REGISTRY_ONLY
-
+    defaultConfig:
+      tracing:
+        sampling: "100" # TODO: Customize
 ---
 
