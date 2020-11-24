@@ -129,11 +129,11 @@ spec:
   http:
     - match:
         - uri:
-            prefix: "/jaeger/"
-        - uri:
-            exact: "/jaeger"
+            prefix: "/"
+        # - uri:
+        #     exact: "/jaeger"
       rewrite:
-        uri: "/jaeger/"
+        uri: "/"
       route:
         - destination:
             port:
