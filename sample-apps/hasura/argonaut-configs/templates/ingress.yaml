@@ -1,0 +1,68 @@
+{{- $name := include "argonaut-deployment.uname" . -}}
+{{- $chartName := .Chart.Name -}}
+{{- $releaseName := .Release.Name -}}
+{{- $releaseService := .Release.Service -}}
+{{- $host := .Values.host -}}
+
+---
+# Configure Virtual Services
+{{- range .Values.services }}
+{{- if .ingress }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "{{ $name }}-{{- .name -}}-vs"
+  labels:
+    heritage: {{ $releaseService | quote }}
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+    app: {{ $name | quote }}
+spec:
+  hosts:
+    {{- if or (empty $host) (eq $host "local") }}
+    - "*"
+    {{- else }}
+    - {{ $host }}
+    {{- end }}
+  gateways:
+    - istio-system/ingress-gateway
+  exportTo:
+    - "*" # TBD - env interaction
+  {{- if or (eq .protocol "http") (and (eq .protocol "tls") (eq .ingress.tls "terminated")) }}
+  http:
+    - match:
+        - uri:
+            prefix: {{ .ingress.path }}
+      rewrite:
+        uri: "/" # {{ .ingress.path }}
+      route:
+        - destination:
+            port:
+              number: {{ .port }}
+            host: "{{- $name -}} .dev.svc.cluster.local"
+  {{- else if and (eq .protocol "tls") (eq .ingress.tls "passthrough") -}}
+  # https implementation
+  https:
+    - match:
+      - port: {{ .ingress.port }}
+        sniHosts:
+        - {{ $host }}
+      route:
+      - destination:
+          host: "{{- $name -}} .dev.svc.cluster.local"
+          port:
+            number: {{ .port }}
+  {{- else if eq .protocol "tcp" }}
+  # tcp implementation
+  tcp:
+  - match:
+    - port: {{ .ingress.port }}
+    route:
+    - destination:
+        host: "{{- $name -}} .dev.svc.cluster.local"
+        port:
+          number: {{ .port }}
+  {{- end -}}
+{{- end }}
+---
+{{- end }}

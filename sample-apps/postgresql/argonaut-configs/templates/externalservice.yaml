@@ -1,0 +1,46 @@
+{{- $name := include "argonaut-deployment.uname" . -}}
+{{- $chartName := .Chart.Name -}}
+{{- $releaseName := .Release.Name -}}
+{{- $releaseService := .Release.Service -}}
+
+{{- range $index, $value := .Values.externalServices }}
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: "{{- .name }}"
+  labels:
+    heritage: {{ $releaseService | quote }}
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+spec:
+  hosts:
+    {{- range .hosts }}
+    - {{ . }}
+    {{- end }}
+  ports:
+  {{- range .ports }}
+    - name: {{ .name }}
+      protocol: {{ .protocol }}
+      number: {{ .number }}
+  {{- end }}
+  resolution: {{ .resolution }} # DNS
+  location: {{ .location }}
+---
+{{- $svcName := .name -}}
+{{- range .hosts }}
+kind: Service
+apiVersion: v1
+metadata:
+ name: {{ $svcName | quote }}
+#  name: {{ cat $svcName . | replace " " "-" | trunc 48 | quote }}
+ labels:
+    heritage: {{ $releaseService | quote }}
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+spec:
+ type: ExternalName
+ externalName: {{ . }}
+---
+{{- end }}
+{{- end }}
+

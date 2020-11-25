@@ -1,0 +1,31 @@
+{{- $name := include "argonaut-deployment.uname" . -}}
+{{- $chartName := .Chart.Name -}}
+{{- $releaseName := .Release.Name -}}
+{{- $releaseService := .Release.Service -}}
+{{- $version := .Values.version | default .Release.Revision -}}
+
+{{- if .Values.services -}}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ $name | quote }}
+  labels:
+    heritage: {{ $releaseService | quote }}
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+    version: {{ $version | quote }}
+    app: {{ $name | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    release: {{ $releaseName | quote }}
+    chart: {{ $chartName | quote }}
+    app: {{ $name | quote }}
+  ports:
+    {{- range .Values.services }} 
+    - name: "{{ $name | trunc 5 }}-{{- .name -}}"
+      protocol: TCP # UDP and SCTP are the other options
+      port: {{ .port }}
+    {{- end }}
+---
+{{- end -}}
