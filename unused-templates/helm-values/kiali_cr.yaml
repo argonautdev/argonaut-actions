@@ -562,7 +562,7 @@ spec:
       #      is_core_component: false
       #      enabled: true
       in_cluster_url:
-        "http://jaeger-jaeger-query.tools.svc.cluster.local:80"
+        "http://jaeger-jaeger-query.tools.svc.cluster.local:16686"
         #      namespace_selector: true
       url: "https://tools.tritonhq.io/jaeger"
       whitelist_istio_system: ["istio-system.istio-ingressgateway"]

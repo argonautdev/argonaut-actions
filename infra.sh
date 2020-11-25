@@ -57,7 +57,7 @@ helm upgrade --install fluent-bit loki/fluent-bit -n $TOOLS_NS -f $SETUP_CONFIGS
 # Grafana
 helm upgrade --install grafana grafana/grafana -n $TOOLS_NS -f $SETUP_CONFIGS/helm-values/grafana.yaml 
 # Loki
-helm upgrade --install loki loki/loki -n $TOOLS_NS -f $SETUP_CONFIGS/helm-values/loki.yaml 
+helm upgrade --install loki loki/loki -n $TOOLS_NS -f $SETUP_CONFIGS/helm-values/loki-temp.yaml 
 # Cert-Manager
 helm upgrade --install cert-manager jetstack/cert-manager -n $TOOLS_NS -f $SETUP_CONFIGS/helm-values/cert-manager.yaml 
 # ArgoCd
@@ -67,19 +67,14 @@ helm upgrade --install argocd argo/argo-cd -n $TOOLS_NS -f $SETUP_CONFIGS/helm-v
 # Note: The jaeger UI doesn't work because the base-path is to be changed to /jaeger
 helm upgrade --install -n $TOOLS_NS jaeger jaegertracing/jaeger-operator --set jaeger.create=true --set fullnameOverride=jaeger 
 # helm upgrade --install -n $TOOLS_NS jaeger jaegertracing/jaeger -f $SETUP_CONFIGS/helm-values/jaeger.yaml
-# Install Jaeger
 # kubectl apply -f $SETUP_CONFIGS/addons/jaeger.yaml -n $TOOLS_NS
 
 # Install Kiali
-# helm upgrade --install kiali-operator kiali/kiali-operator -n $TOOLS_NS
-# kubectl -n $TOOLS_NS apply -f $SETUP_CONFIGS/kiali_cr.yaml
-# TODO: This is temporary until the helm chart is bumped up to v1.27and beyond
 helm upgrade --install kiali-operator kiali/kiali-operator -n $TOOLS_NS -f $SETUP_CONFIGS/helm-values/kiali-operator-service.yaml
 
 # Setup Cluster Certificate Issuer in istio-system namespace. Needs to wait for certmanager pods to be ready
 kubectl apply -f $SETUP_CONFIGS/certificate-issuer.yaml # Cluster scoped, not namespace specific
-# Setup Certificate in istio-system namespace.
-# Do not forget to add DNS for new domains. Needs wait for new domains.
+# Setup Certificate in istio-system namespace. Do not forget to add DNS for new domains. Needs wait for new domains.
 kubectl -n istio-system apply -f $SETUP_CONFIGS/certificate.yaml
 # Setup Ingress
 kubectl -n $TOOLS_NS apply -f $SETUP_CONFIGS/ingress.yaml

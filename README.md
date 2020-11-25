@@ -206,6 +206,7 @@ kubectl -n istio-system get clusterissuers.cert-manager.io
 6. Stateful set port names should be < 15 char
 7. Services are set to `httpRewrite` path "/" by default
 8. There is a max limit to number of pods per node. That can be set in eksctl in extra config
+9. Loki helm upgrades do NOT modify the pods properly and need a pod restart
 
 ---
 

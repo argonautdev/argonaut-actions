@@ -1,4 +1,6 @@
-# Good reference https://github.com/grafana/loki/blob/master/production/helm/loki/values.yaml
+# TEMP until the issue gets resolved with s3
+# https://github.com/grafana/loki/issues/2912
+
 image:
   repository: grafana/loki
   tag: 2.0.0
@@ -52,7 +54,6 @@ config:
     chunk_block_size: 262144
     chunk_retain_period: 1m
     max_transfer_retries: 0
-    # chunk_encoding: snappy
     lifecycler:
       ring:
         kvstore:
@@ -71,13 +72,12 @@ config:
   limits_config:
     enforce_metric_name: false
     reject_old_samples: true
-    reject_old_samples_max_age: 720h # 30d
-    max_cache_freshness_per_query: "10m"
+    reject_old_samples_max_age: 168h
   schema_config:
     configs:
-      - from: 2020-11-22
+      - from: 2020-10-24
         store: boltdb-shipper
-        object_store: s3
+        object_store: filesystem
         schema: v11
         index:
           prefix: index_
@@ -89,16 +89,14 @@ config:
       active_index_directory: /data/loki/boltdb-shipper-active
       cache_location: /data/loki/boltdb-shipper-cache
       cache_ttl: 24h # Can be increased for faster performance over longer query periods, uses more disk space
-      shared_store: s3
-    aws:
-      s3: s3://us-east-2/tritonhq-dev-loki-logs/test/
-      # region: "us-east-2"
-      s3forcepathstyle: true
+      shared_store: filesystem
+    filesystem:
+      directory: /data/loki/chunks
   chunk_store_config:
-    max_look_back_period: 720h # 30d
+    max_look_back_period: 0s
   table_manager:
-    retention_deletes_enabled: true
-    retention_period: 720h # 30d
+    retention_deletes_enabled: false
+    retention_period: 0s
   compactor:
     working_directory: /data/loki/boltdb-shipper-compactor
     shared_store: filesystem
@@ -224,7 +222,7 @@ updateStrategy:
 
 serviceMonitor:
   enabled: false
-  interval: "1m"
+  interval: ""
   additionalLabels: {}
   annotations: {}
   # scrapeTimeout: 10s

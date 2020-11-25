@@ -1,10 +1,9 @@
-image:
-  tag: v1.27 # TODO change
 debug:
   enabled: false
   # verbosity: "1"
 cr:
   create: true
+  # Spec documentation is here - https://github.com/kiali/kiali-operator/blob/master/deploy/kiali/kiali_cr.yaml
   spec:
     deployment:
       accessible_namespaces:
