@@ -4,8 +4,8 @@
 nameOverride: argocd
 fullnameOverride: ""
 
-# Optional CRD installation for those without Helm hooks
-installCRDs: false
+# # Optional CRD installation for those without Helm hooks
+# installCRDs: false
 
 global:
   image:
@@ -339,8 +339,8 @@ server:
     enabled: false
     minReplicas: 1
     maxReplicas: 5
-    targetCPUUtilizationPercentage: 50
-    targetMemoryUtilizationPercentage: 50
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 70
 
   image:
     repository: # argoproj/argocd
@@ -530,6 +530,29 @@ server:
     url: https://tools.tritonhq.io/argocd/
     # Argo CD instance label key
     application.instanceLabelKey: argocd.argoproj.io/instance
+    # Enables application status badge feature
+    statusbadge.enabled: "true"
+
+    #######################################
+    # Configuration to add a config management plugin.
+    # Needed for taking just the service descriptor yaml and merging with the helm chart
+    configManagementPlugins: |
+      - name: kustomized-helm
+        init:
+          command: ["/bin/sh", "-c"]
+          args: ["helm init --client-only && helm dependency build &&
+                    helm repo add art-charts https://raw.githubusercontent.com/argonautdev/charts/main/dist/ &&
+                    helm repo update"]
+        generate:
+          command: [sh, -c]
+          args: ["helm template appname art-charts/service --version $ART_VERSION"]
+    #     args: ["helm template appname art-charts/service --version $ART_VERSION > all.yaml && kustomize build"]
+    #######################################
+
+    # # Enables google analytics tracking is specified
+    # ga.trackingid: "UA-12345-1"
+    # # Unless set to 'false' then user ids are hashed before sending to google analytics
+    # ga.anonymizeusers: "false"
     # repositories: |
     #   - url: git@github.com:group/repo.git
     #     sshPrivateKeySecret:
@@ -553,6 +576,80 @@ server:
     #     - openid
     #     - profile
     #     - email
+    # # Configuration to customize resource behavior (optional). Keys are in the form: group/Kind.
+    # resource.customizations: |
+    #   admissionregistration.k8s.io/MutatingWebhookConfiguration:
+    #     # List of json pointers in the object to ignore differences
+    #     ignoreDifferences: |
+    #       jsonPointers:
+    #       - /webhooks/0/clientConfig/caBundle
+    #   certmanager.k8s.io/Certificate:
+    #     # Lua script for customizing the health status assessment
+    #     health.lua: |
+    #       hs = {}
+    #       if obj.status ~= nil then
+    #         if obj.status.conditions ~= nil then
+    #           for i, condition in ipairs(obj.status.conditions) do
+    #             if condition.type == "Ready" and condition.status == "False" then
+    #               hs.status = "Degraded"
+    #               hs.message = condition.message
+    #               return hs
+    #             end
+    #             if condition.type == "Ready" and condition.status == "True" then
+    #               hs.status = "Healthy"
+    #               hs.message = condition.message
+    #               return hs
+    #             end
+    #           end
+    #         end
+    #       end
+    #       hs.status = "Progressing"
+    #       hs.message = "Waiting for certificate"
+    #       return hs
+    #   cert-manager.io/Certificate:
+    #     # Lua script for customizing the health status assessment
+    #     health.lua: |
+    #       hs = {}
+    #       if obj.status ~= nil then
+    #         if obj.status.conditions ~= nil then
+    #           for i, condition in ipairs(obj.status.conditions) do
+    #             if condition.type == "Ready" and condition.status == "False" then
+    #               hs.status = "Degraded"
+    #               hs.message = condition.message
+    #               return hs
+    #             end
+    #             if condition.type == "Ready" and condition.status == "True" then
+    #               hs.status = "Healthy"
+    #               hs.message = condition.message
+    #               return hs
+    #             end
+    #           end
+    #         end
+    #       end
+    #       hs.status = "Progressing"
+    #       hs.message = "Waiting for certificate"
+    #       return hs
+    #   apps/Deployment:
+    #     # List of Lua Scripts to introduce custom actions
+    #     actions: |
+    #       # Lua Script to indicate which custom actions are available on the resource
+    #       discovery.lua: |
+    #         actions = {}
+    #         actions["restart"] = {}
+    #         return actions
+    #       definitions:
+    #         - name: restart
+    #           # Lua Script to modify the obj
+    #           action.lua: |
+    #             local os = require("os")
+    #             if obj.spec.template.metadata == nil then
+    #                 obj.spec.template.metadata = {}
+    #             end
+    #             if obj.spec.template.metadata.annotations == nil then
+    #                 obj.spec.template.metadata.annotations = {}
+    #             end
+    #             obj.spec.template.metadata.annotations["kubectl.kubernetes.io/restartedAt"] = os.date("!%Y-%m-%dT%XZ")
+    #             return obj
 
   ## Annotations to be added to ArgoCD ConfigMap
   configAnnotations: {}
@@ -587,62 +684,10 @@ server:
   ## Applications
   ## reference: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/
   additionalApplications: []
-  # - name: guestbook
-  #   namespace: argocd
-  #   additionalLabels: {}
-  #   additionalAnnotations: {}
-  #   project: guestbook
-  #   source:
-  #     repoURL: https://github.com/argoproj/argocd-example-apps.git
-  #     targetRevision: HEAD
-  #     path: guestbook
-  #     directory:
-  #       recurse: true
-  #  destination:
-  #     server: https://kubernetes.default.svc
-  #     namespace: guestbook
-  #  syncPolicy:
-  #    automated:
-  #      prune: false
-  #      selfHeal: false
 
   ## Projects
   ## reference: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/
   additionalProjects: []
-  # - name: guestbook
-  #   namespace: argocd
-  #   additionalLabels: {}
-  #   additionalAnnotations: {}
-  #   description: Example Project
-  #   sourceRepos:
-  #   - '*'
-  #   destinations:
-  #   - namespace: guestbook
-  #     server: https://kubernetes.default.svc
-  #   clusterResourceWhitelist: []
-  #   namespaceResourceBlacklist:
-  #   - group: ''
-  #     kind: ResourceQuota
-  #   - group: ''
-  #     kind: LimitRange
-  #   - group: ''
-  #     kind: NetworkPolicy
-  #     orphanedResources: {}
-  #     roles: []
-  #   namespaceResourceWhitelist:
-  #   - group: 'apps'
-  #     kind: Deployment
-  #   - group: 'apps'
-  #     kind: StatefulSet
-  #   orphanedResources: {}
-  #   roles: []
-  #   syncWindows:
-  #   - kind: allow
-  #     schedule: '10 1 * * *'
-  #     duration: 1h
-  #     applications:
-  #     - '*-prod'
-  #     manualSync: true
 
   ## Enable Admin ClusterRole resources.
   ## Enable if you would like to grant rights to ArgoCD to deploy to the local Kubernetes cluster.
@@ -660,28 +705,6 @@ server:
   #        secretName: argocd-secret
 
   extraContainers: []
-  ## Additional containers to be added to the controller pod.
-  ## See https://github.com/lemonldap-ng-controller/lemonldap-ng-controller as example.
-  # - name: my-sidecar
-  #   image: nginx:latest
-  # - name: lemonldap-ng-controller
-  #   image: lemonldapng/lemonldap-ng-controller:0.2.0
-  #   args:
-  #     - /lemonldap-ng-controller
-  #     - --alsologtostderr
-  #     - --configmap=$(POD_NAMESPACE)/lemonldap-ng-configuration
-  #   env:
-  #     - name: POD_NAME
-  #       valueFrom:
-  #         fieldRef:
-  #           fieldPath: metadata.name
-  #     - name: POD_NAMESPACE
-  #       valueFrom:
-  #         fieldRef:
-  #           fieldPath: metadata.namespace
-  #   volumeMounts:
-  #   - name: copy-portal-skins
-  #     mountPath: /srv/var/lib/lemonldap-ng/portal/skins
 
 ## Repo Server
 repoServer:

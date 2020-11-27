@@ -64,7 +64,7 @@ helm upgrade --install cert-manager jetstack/cert-manager -n $TOOLS_NS -f $SETUP
 helm upgrade --install argocd argo/argo-cd -n $TOOLS_NS -f $SETUP_CONFIGS/helm-values/argocd.yaml 
 
 # Install Jaeger - without persistence or a data store - TODO
-# Note: The jaeger UI doesn't work because the base-path is to be changed to /jaeger
+# TODO: The jaeger UI doesn't work because the base-path is to be changed to /jaeger
 helm upgrade --install -n $TOOLS_NS jaeger jaegertracing/jaeger-operator --set jaeger.create=true --set fullnameOverride=jaeger 
 # helm upgrade --install -n $TOOLS_NS jaeger jaegertracing/jaeger -f $SETUP_CONFIGS/helm-values/jaeger.yaml
 # kubectl apply -f $SETUP_CONFIGS/addons/jaeger.yaml -n $TOOLS_NS
