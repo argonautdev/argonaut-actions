@@ -56,13 +56,6 @@ export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 # Setup kubectl config
 aws eks --region us-east-2 update-kubeconfig --name $CLUSTER_NAME
 
-# If there are multiple clusters, need to pick the right one - TODO
-export CONTEXT_NAME=`kubectl config view -o jsonpath='{.contexts[].name}'`
-# Ensure sufficient permissions for reading image
-kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-username=argonaut --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=$CI_REGISTRY
-### TODO: Update pod deployment spec to have imagePullSecrets
-### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
-
 # Install ArgoCD CLI
 echo "Installing ArgoCD CLI"
 
@@ -72,11 +65,19 @@ export ARGO_PWD="1234567890"
 curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v1.7.8/argocd-linux-amd64
 chmod a+x /usr/local/bin/argocd
 
-# argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure
-argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --insecure --grpc-web-root-path /argo-cd
-export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
+# Access the argocd operator
+# argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD
+argocd login $ARGOCD_SERVER --username admin --password $ARGO_PWD --grpc-web-root-path /argocd
+export CONTEXT_NAME=`kubectl config view -o jsonpath='{.contexts[].name}'`
 argocd cluster add $CONTEXT_NAME --upsert
+# If there are multiple clusters, need to pick the right one
+export CLUSTER_SERVER=`argocd cluster list | sed -n 2p | cut -d' ' -f 1`
 
+
+# Ensure sufficient permissions for reading image
+kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-username=argonaut --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=$CI_REGISTRY
+### TODO: Update pod deployment spec to have imagePullSecrets
+### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
 
 # Update docker image with latest tag
 cd $CONFIG_PATH
@@ -91,9 +92,9 @@ echo "Updated values file tag"
 
 # Create ArgoCD app release
 echo "Creating ArgoCD app release"
-echo "Adding repo: argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert"
-argocd repo add "https://gitlab.com/$CI_PROJECT_PATH.git" --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
-# argocd repo add $CI_REPOSITORY_URL --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
+# echo "Adding repo: argocd repo add https://gitlab.com/$CI_PROJECT_PATH.git --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert"
+# argocd repo add "https://gitlab.com/$CI_PROJECT_PATH.git" --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
+# # argocd repo add $CI_REPOSITORY_URL --username $GIT_USER --password $GIT_PUSH_TOKEN --upsert
 echo "Creating argo app"
 echo 'argocd app create "$APP_NAME" --repo https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git --revision $GIT_BRANCH --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert'
 argocd app create "$APP_NAME" --repo "https://$GIT_USER:$GIT_PUSH_TOKEN@gitlab.com/$CI_PROJECT_PATH.git" --revision $GIT_BRANCH --path "argonaut-configs" --dest-server $CLUSTER_SERVER --dest-namespace $ENV_NAME --auto-prune --sync-policy automated --upsert

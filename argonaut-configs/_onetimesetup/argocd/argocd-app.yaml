@@ -2,14 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: hasura
-  # # Add this finalizer ONLY if you want these to cascade delete.
-  # finalizers:
-  #   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    name: ""
+    name: "in-cluster"
     namespace: dev
-    server: "https://AB18D8644B2DB0156E9CF6AEEFC5369E.gr7.us-east-2.eks.amazonaws.com"
+    server: ""
+    # server: "https://AB18D8644B2DB0156E9CF6AEEFC5369E.gr7.us-east-2.eks.amazonaws.com"
   source:
     path: "sample-apps/hasura/.art"
     repoURL: "https://github.com/argonautdev/app-actions/"
@@ -26,6 +24,8 @@ spec:
           value: dev
         - name: ART_VERSION
           value: v0.1.0
+        - name: NAME
+          value: hasura
   project: default
   syncPolicy:
     automated:

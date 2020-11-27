@@ -540,12 +540,11 @@ server:
       - name: kustomized-helm
         init:
           command: ["/bin/sh", "-c"]
-          args: ["helm init --client-only && helm dependency build &&
-                    helm repo add art-charts https://raw.githubusercontent.com/argonautdev/charts/main/dist/ &&
+          args: ["helm repo add art-charts https://raw.githubusercontent.com/argonautdev/charts/main/dist/ &&
                     helm repo update"]
         generate:
           command: [sh, -c]
-          args: ["helm template appname art-charts/service --version $ART_VERSION"]
+          args: ["helm template $NAME art-charts/service --version $ART_VERSION -f values.yaml"]
     #     args: ["helm template appname art-charts/service --version $ART_VERSION > all.yaml && kustomize build"]
     #######################################
 
@@ -553,17 +552,20 @@ server:
     # ga.trackingid: "UA-12345-1"
     # # Unless set to 'false' then user ids are hashed before sending to google analytics
     # ga.anonymizeusers: "false"
-    # repositories: |
+    repositories: |
+      - type: helm
+        url: https://raw.githubusercontent.com/argonautdev/charts/main/dist/
+        name: service
+      - type: helm
+        url: https://raw.githubusercontent.com/argonautdev/charts/main/dist/
+        name: managed
+    #   - type: helm
+    #     url: https://argoproj.github.io/argo-helm
+    #     name: argo
     #   - url: git@github.com:group/repo.git
     #     sshPrivateKeySecret:
     #       name: secret-name
     #       key: sshPrivateKey
-    #   - type: helm
-    #     url: https://kubernetes-charts.storage.googleapis.com
-    #     name: stable
-    #   - type: helm
-    #     url: https://argoproj.github.io/argo-helm
-    #     name: argo
     # oidc.config: |
     #   name: AzureAD
     #   issuer: https://login.microsoftonline.com/TENANT_ID/v2.0
