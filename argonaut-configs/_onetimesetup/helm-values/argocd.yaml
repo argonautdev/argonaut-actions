@@ -544,8 +544,8 @@ server:
                     helm repo update"]
         generate:
           command: [sh, -c]
-          args: ["helm template $NAME art-charts/service --version $ART_VERSION -f values.yaml"]
-    #     args: ["helm template appname art-charts/service --version $ART_VERSION > all.yaml && kustomize build"]
+          args: ["helm template $NAME art-charts/service --version $ART_CHART_VERSION -f art.yaml"]
+    #     args: ["helm template appname art-charts/service --version $ART_CHART_VERSION > art.yaml && kustomize build"]
     #######################################
 
     # # Enables google analytics tracking is specified
