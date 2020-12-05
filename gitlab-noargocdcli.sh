@@ -12,6 +12,7 @@ DOCKER_IMAGE_ACCESS_TOKEN=$6
 GIT_USER=$7
 GIT_PUSH_TOKEN=$8
 GIT_BRANCH=${9:="dockerfile"}
+ART_CONFIG_FILE=${ART_CONFIG_FILE:-".art/art.yaml"}
 
 echo "$!"
 echo "$@"
@@ -69,7 +70,7 @@ kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-us
 cd ../
 
 # NOTE: This has to be in the tools namespace
-art app deploy -n tools -f _onetimesetup/argocd/argocd-app.yaml -i $DOCKER_IMAGE -t $DOCKER_IMAGE_TAG
+art app deploy -n tools -a _onetimesetup/argocd/argocd-app.yaml -f $ART_CONFIG_FILE -i $DOCKER_IMAGE -t $DOCKER_IMAGE_TAG
 # TODO: Trigger a sync for the argocd-app
 
 echo "Exiting script"
