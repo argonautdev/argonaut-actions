@@ -62,20 +62,14 @@ kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-us
 ### TODO: Update pod deployment spec to have imagePullSecrets
 ### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
 
-# Install yq
-wget -O $ARGONAUT_WORKSPACE/bin/yq "https://github.com/mikefarah/yq/releases/download/3.4.0/yq_linux_amd64"
-chmod a+x $ARGONAUT_WORKSPACE/bin/yq
 
-yq w -i values.yaml image $DOCKER_IMAGE
-yq w -i values.yaml imageTag $DOCKER_IMAGE_TAG
-echo "Updated values file tag"
 
 # TODO: Update argocd-app config - branch, env,
 
 cd ../
 
 # NOTE: This has to be in the tools namespace
-kubectl -n tools apply -f _onetimesetup/argocd/argocd-app.yaml
+art app deploy -n tools -f _onetimesetup/argocd/argocd-app.yaml -i $DOCKER_IMAGE -t $DOCKER_IMAGE_TAG
 # TODO: Trigger a sync for the argocd-app
 
 echo "Exiting script"
