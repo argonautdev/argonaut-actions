@@ -22,10 +22,14 @@ spec:
       env:
         - name: ENV
           value: dev
-        - name: ART_VERSION
+        - name: ART_CHART_VERSION
           value: v0.1.0
         - name: NAME
           value: hasura
+        - name: ART_IMAGE_NAME
+          value:
+        - name: ART_IMAGE_TAG
+          value: latest
   project: default
   syncPolicy:
     # automated:
