@@ -54,6 +54,7 @@ nodeGroups:
       k8s.io/cluster-autoscaler/node-template/taint/spotInstance: "true:PreferNoSchedule"
       k8s.io/cluster-autoscaler/enabled: "true"
     labels:
+      environment: "dev"
       lifecycle: Ec2Spot
       aws.amazon.com/spot: "true"
   # - name: ondemand-1

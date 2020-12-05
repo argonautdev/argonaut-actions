@@ -17,8 +17,6 @@ eksctl create cluster -f $SETUP_CONFIGS/awsclusterconfig.yaml
 # If create cluster fails after control plane and before nodegroup setup, kubeconfig is not updated
 # aws eks --region us-east-2 update-kubeconfig --name "shadow"
 
-
-
 # Cluster configurations
 # Create the environment
 kubectl create namespace $ENV_NAME

@@ -74,6 +74,7 @@ echo "Updated values file tag"
 
 cd ../
 
-kubectl -n dev apply -f _onetimesetup/argocd/argocd-app.yaml
+# NOTE: This has to be in the tools namespace
+kubectl -n tools apply -f _onetimesetup/argocd/argocd-app.yaml
 
 echo "Exiting script"

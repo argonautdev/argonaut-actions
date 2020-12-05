@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: hasura
+  name: dev-hasura # Needs to be unique per cluster, across environments
 spec:
   destination:
     name: "in-cluster"
@@ -28,11 +28,11 @@ spec:
           value: hasura
   project: default
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: false
-    syncOptions:
-      - CreateNamespace=true
+    # automated:
+    #   prune: true
+    #   selfHeal: false
+    # syncOptions:
+    #   - CreateNamespace=true
     retry:
       limit: -1 # number of failed sync attempt retries; unlimited number of attempts if less than 0
       backoff:
