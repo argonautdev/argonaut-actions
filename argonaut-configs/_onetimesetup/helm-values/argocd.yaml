@@ -535,7 +535,7 @@ server:
 
     #######################################
     # Configuration to add a config management plugin.
-    # Needed for taking just the service descriptor yaml and merging with the helm chart
+    # Needed for taking just the art.yaml and merging with the helm chart
     configManagementPlugins: |
       - name: kustomized-helm
         init:
@@ -544,8 +544,8 @@ server:
                     helm repo update"]
         generate:
           command: [sh, -c]
-          args: ["helm template $NAME art-charts/service --version $ART_CHART_VERSION -f art.yaml"]
-    #     args: ["helm template appname art-charts/service --version $ART_CHART_VERSION > art.yaml && kustomize build"]
+          args: ["helm template $NAME art-charts/service -f art.yaml --version $ART_CHART_VERSION --set image=$ART_IMAGE_NAME --set imageTag=$ART_IMAGE_TAG"]
+    #     args: ["helm template appname art-charts/service -f art.yaml --version $ART_CHART_VERSION --set image=$ART_IMAGE_NAME --set imageTag=$ART_IMAGE_TAG > art-helm-output.yaml && kustomize build"]
     #######################################
 
     # # Enables google analytics tracking is specified

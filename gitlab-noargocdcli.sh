@@ -70,11 +70,12 @@ yq w -i values.yaml image $DOCKER_IMAGE
 yq w -i values.yaml imageTag $DOCKER_IMAGE_TAG
 echo "Updated values file tag"
 
-# Update argocd-app config - branch, env,
+# TODO: Update argocd-app config - branch, env,
 
 cd ../
 
 # NOTE: This has to be in the tools namespace
 kubectl -n tools apply -f _onetimesetup/argocd/argocd-app.yaml
+# TODO: Trigger a sync for the argocd-app
 
 echo "Exiting script"

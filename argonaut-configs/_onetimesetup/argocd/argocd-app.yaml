@@ -20,14 +20,16 @@ spec:
       name: kustomized-helm
       # environment variables passed to the plugin
       env:
-        - name: ENV
-          value: dev
+        # ENV not required as the namespace is made available as a part of the build environment at $ARGOCD_APP_NAMESPACE
+        # - name: ENV
+        #   value: dev
+        # NAME not required as the namespace is made available as a part of the build environment at $ARGOCD_APP_NAME
+        # - name: NAME
+        #   value: hasura
         - name: ART_CHART_VERSION
           value: v0.1.0
-        - name: NAME
-          value: hasura
         - name: ART_IMAGE_NAME
-          value:
+          value: hasura
         - name: ART_IMAGE_TAG
           value: latest
   project: default
