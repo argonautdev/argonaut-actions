@@ -11,12 +11,12 @@ DOCKER_IMAGE_TAG=$5
 DOCKER_IMAGE_ACCESS_TOKEN=$6
 GIT_USER=$7
 GIT_PUSH_TOKEN=$8
-GIT_BRANCH=${9:="dockerfile"}
+GIT_BRANCH=$"dockerfile"
 
 echo "$!"
 echo "$@"
 
-CLUSTER_NAME="shadow"
+CLUSTER_NAME="argonaut"
 
 APP_NAME=$CI_PROJECT_NAME
 ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
