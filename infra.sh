@@ -2,8 +2,8 @@
 
 ENV_NAME=dev
 TOOLS_NS=tools
-ARGONAUT_WS=argonaut-configs
-SETUP_CONFIGS=_onetimesetup
+ARGONAUT_WS=cluster-setup
+SETUP_CONFIGS="."
 
 cd $ARGONAUT_WS
 
