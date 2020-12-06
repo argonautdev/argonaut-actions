@@ -544,7 +544,7 @@ server:
                     helm repo update"]
         generate:
           command: [sh, -c]
-          args: ["helm template $NAME art-charts/service -f art.yaml --version $ART_CHART_VERSION --set image=$ART_IMAGE_NAME --set imageTag=$ART_IMAGE_TAG"]
+          args: ["helm template $NAME art-charts/service -f $ART_CONFIG_FILE --version $ART_CHART_VERSION --set image=$ART_IMAGE_NAME --set imageTag=$ART_IMAGE_TAG"]
     #     args: ["helm template appname art-charts/service -f art.yaml --version $ART_CHART_VERSION --set image=$ART_IMAGE_NAME --set imageTag=$ART_IMAGE_TAG > art-helm-output.yaml && kustomize build"]
     #######################################
 

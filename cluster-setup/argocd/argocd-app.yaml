@@ -32,6 +32,8 @@ spec:
           value: hasura
         - name: ART_IMAGE_TAG
           value: latest
+        - name: ART_CONFIG_FILE
+          value: .art/art.yaml
   project: default
   syncPolicy:
     # automated:
