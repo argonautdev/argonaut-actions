@@ -11,7 +11,7 @@ DOCKER_IMAGE_TAG=$5
 DOCKER_IMAGE_ACCESS_TOKEN=$6
 GIT_USER=$7
 GIT_PUSH_TOKEN=$8
-GIT_BRANCH=${9:="dockerfile"}
+GIT_BRANCH="dockerfile"
 ART_CONFIG_FILE=${ART_CONFIG_FILE:-".art/art.yaml"}
 
 echo "$!"
@@ -20,18 +20,16 @@ echo "$@"
 CLUSTER_NAME="shadow"
 
 APP_NAME=$CI_PROJECT_NAME
-ARGONAUT_WORKSPACE=`pwd`/argonaut-workspace
-CONFIG_PATH=`pwd`/argonaut-configs
-
+ART_WORKSPACE=`pwd`/.art/
 
 # Prep workspace
-mkdir -p $ARGONAUT_WORKSPACE
-mkdir -p $ARGONAUT_WORKSPACE/bin
-export PATH="$ARGONAUT_WORKSPACE/bin":$PATH
+mkdir -p $ART_WORKSPACE
+mkdir -p $ART_WORKSPACE/bin
+export PATH="$ART_WORKSPACE/bin":$PATH
 
-cd $ARGONAUT_WORKSPACE
+cd $ART_WORKSPACE
 
-apk add curl bash zlib-dev binutils jq
+apk add curl bash zlib-dev binutils
 
 # SETUP kubectl
 echo "Setting up kubectl"
@@ -60,17 +58,14 @@ aws eks --region us-east-2 update-kubeconfig --name $CLUSTER_NAME
 
 # Ensure sufficient permissions for reading image
 kubectl create secret -n $ENV_NAME docker-registry image-pull-secret --docker-username=argonaut --docker-password=$DOCKER_IMAGE_ACCESS_TOKEN --docker-email=argonaut@argonaut.dev --docker-server=$CI_REGISTRY
-### TODO: Update pod deployment spec to have imagePullSecrets
 ### TODO: Create secret should move to cluster and app bootstrap with possibility to update it from here??
 
-
-
 # TODO: Update argocd-app config - branch, env,
-
 cd ../
 
 # NOTE: This has to be in the tools namespace
-art app deploy -n tools -a _onetimesetup/argocd/argocd-app.yaml -f $ART_CONFIG_FILE -i $DOCKER_IMAGE -t $DOCKER_IMAGE_TAG
+# TODO: Install art cli
+art app deploy -n tools -a $ART_WORKSPACE/argocd-app.yaml -f $ART_CONFIG_FILE -i $DOCKER_IMAGE -t $DOCKER_IMAGE_TAG
 # TODO: Trigger a sync for the argocd-app
 
 echo "Exiting script"

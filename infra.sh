@@ -79,4 +79,6 @@ kubectl -n $TOOLS_NS apply -f $SETUP_CONFIGS/ingress.yaml
 
 # Print hostname for DNS
 echo "ADD THIS loadbalancer ip TO YOUR DNS at aws.tritonhq.io AND tools.tritonhq.io AND app.tritonhq.io"
-kubectl get -n istio-system services | grep ingress
+echo "##############################################"
+kubectl -n istio-system get service istio-ingressgateway -o json | jq --raw-output ".status.loadBalancer.ingress[0].hostname"
+echo "##############################################"

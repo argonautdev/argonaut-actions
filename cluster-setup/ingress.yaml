@@ -127,40 +127,40 @@ spec:
   http:
     - match:
         - uri:
-            prefix: "/"
-        # - uri:
-        #     exact: "/jaeger"
+            prefix: "/jaeger/"
+        - uri:
+            exact: "/jaeger"
       rewrite:
-        uri: "/"
+        uri: "/jaeger/"
       route:
         - destination:
             port:
               number: 16686
             host: jaeger-jaeger-query.tools.svc.cluster.local
 ---
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: "app-ingress"
-spec:
-  hosts:
-    - "app.tritonhq.io"
-  gateways:
-    - ingress-gateway
-  exportTo:
-    - "*"
-  http:
-    - match:
-        - uri:
-            prefix: "/"
-        # - uri:
-        #     exact: "/app"
-      rewrite:
-        uri: "/"
-      route:
-        - destination:
-            port:
-              number: 80
-            host: wp-wordpress.dev.svc.cluster.local
----
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: "app-ingress"
+# spec:
+#   hosts:
+#     - "app.tritonhq.io"
+#   gateways:
+#     - ingress-gateway
+#   exportTo:
+#     - "*"
+#   http:
+#     - match:
+#         - uri:
+#             prefix: "/"
+#         # - uri:
+#         #     exact: "/app"
+#       rewrite:
+#         uri: "/"
+#       route:
+#         - destination:
+#             port:
+#               number: 80
+#             host: wp-wordpress.dev.svc.cluster.local
+# ---
 
