@@ -1,0 +1,166 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: ingress-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default ingress gateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "aws.tritonhq.io"
+        - "tools.tritonhq.io"
+        - "app.tritonhq.io"
+      # tls:
+      #   httpsRedirect: true
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: ingress-letsencrypt # must be the same as secret
+      hosts:
+        - "aws.tritonhq.io"
+        - "tools.tritonhq.io"
+    - port:
+        number: 1883
+        name: tcp-mqtt-1833
+        protocol: TCP
+      hosts:
+        - "aws.tritonhq.io"
+    - port:
+        number: 8883
+        name: tcp-mqtt-8883
+        protocol: TCP
+      hosts:
+        - "aws.tritonhq.io"
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "grafana-ingress"
+spec:
+  hosts:
+    - "tools.tritonhq.io"
+  gateways:
+    - ingress-gateway
+  exportTo:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: "/grafana/"
+        - uri:
+            exact: "/grafana"
+      rewrite:
+        uri: "/grafana/"
+      route:
+        - destination:
+            port:
+              number: 80
+            host: grafana.tools.svc.cluster.local
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "argocd-ingress"
+spec:
+  hosts:
+    - "tools.tritonhq.io"
+  gateways:
+    - ingress-gateway
+  http:
+    - match:
+        - uri:
+            prefix: "/argocd/"
+        - uri:
+            exact: "/argocd"
+      rewrite:
+        uri: "/argocd/"
+      route:
+        - destination:
+            host: argocd-server.tools.svc.cluster.local
+            port:
+              number: 443
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "kiali-ingress"
+spec:
+  hosts:
+    - "tools.tritonhq.io"
+  gateways:
+    - ingress-gateway
+  exportTo:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: "/kiali/"
+        - uri:
+            exact: "/kiali"
+      rewrite:
+        uri: "/kiali/"
+      route:
+        - destination:
+            port:
+              number: 20001
+            host: kiali.tools.svc.cluster.local
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "jaeger-ingress"
+spec:
+  hosts:
+    - "tools.tritonhq.io"
+  gateways:
+    - ingress-gateway
+  exportTo:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: "/"
+        # - uri:
+        #     exact: "/jaeger"
+      rewrite:
+        uri: "/"
+      route:
+        - destination:
+            port:
+              number: 16686
+            host: jaeger-jaeger-query.tools.svc.cluster.local
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "app-ingress"
+spec:
+  hosts:
+    - "app.tritonhq.io"
+  gateways:
+    - ingress-gateway
+  exportTo:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: "/"
+        # - uri:
+        #     exact: "/app"
+      rewrite:
+        uri: "/"
+      route:
+        - destination:
+            port:
+              number: 80
+            host: wp-wordpress.dev.svc.cluster.local
+---
+

@@ -1,0 +1,45 @@
+debug:
+  enabled: false
+  # verbosity: "1"
+cr:
+  create: true
+  # Spec documentation is here - https://github.com/kiali/kiali-operator/blob/master/deploy/kiali/kiali_cr.yaml
+  spec:
+    deployment:
+      accessible_namespaces:
+        - "**"
+    istio_component_namespaces:
+      prometheus: "tools"
+      grafana: "tools"
+      jaeger: "tools"
+      zipkin: "tools"
+      tracing: "tools"
+    istio_namespace: "istio-system"
+    auth:
+      strategy: "anonymous"
+    external_services:
+      custom_dashboards:
+        enabled: true
+        namespace_label: "tools"
+        prometheus:
+          url: "http://prometheus-server.tools.svc.cluster.local:80"
+        grafana:
+          dashboards:
+            - name: "Istio Service Dashboard"
+              variables:
+                namespace: "tools"
+                service: "var-service"
+            - name: "Istio Workload Dashboard"
+              variables:
+                namespace: "var-namespace"
+                workload: "var-workload"
+          enabled: true
+          in_cluster_url: "http://grafana.tools.svc.cluster.local:80"
+          url: "https://tools.tritonhq.io/grafana"
+      prometheus:
+        url: "http://prometheus-server.tools.svc.cluster.local:80"
+      tracing:
+        enabled: true
+        in_cluster_url: "http://jaeger-jaeger-query.tools.svc.cluster.local:16686"
+        url: "https://tools.tritonhq.io/jaeger"
+        whitelist_istio_system: ["istio-system.istio-ingressgateway"]

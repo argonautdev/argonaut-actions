@@ -1,0 +1,23 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  components:
+    pilot:
+      k8s:
+        resources:
+          requests:
+            cpu: 250m # TODO: override from default 500m
+            memory: 512Mi # ... default 2048Mi
+    egressGateways:
+      - name: istio-egressgateway
+        enabled: false
+  meshConfig:
+    accessLogFile: /dev/stdout
+    outboundTrafficPolicy:
+      mode: ALLOW_ANY
+      # mode: REGISTRY_ONLY
+    defaultConfig:
+      tracing:
+        sampling: "100" # TODO: Customize
+---
+

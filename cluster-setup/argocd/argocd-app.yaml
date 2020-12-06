@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-hasura # Needs to be unique per cluster, across environments
+spec:
+  destination:
+    name: "in-cluster"
+    namespace: dev
+    server: ""
+    # server: "https://AB18D8644B2DB0156E9CF6AEEFC5369E.gr7.us-east-2.eks.amazonaws.com"
+  source:
+    path: "sample-apps/hasura/.art"
+    repoURL: "https://github.com/argonautdev/app-actions/"
+    targetRevision: HEAD
+    # helm:
+    #   valueFiles:
+    #     - values.yaml
+    # plugin specific config
+    plugin:
+      name: kustomized-helm
+      # environment variables passed to the plugin
+      env:
+        # ENV not required as the namespace is made available as a part of the build environment at $ARGOCD_APP_NAMESPACE
+        # - name: ENV
+        #   value: dev
+        # NAME not required as the namespace is made available as a part of the build environment at $ARGOCD_APP_NAME
+        # - name: NAME
+        #   value: hasura
+        - name: ART_CHART_VERSION
+          value: v0.1.0
+        - name: ART_IMAGE_NAME
+          value: hasura
+        - name: ART_IMAGE_TAG
+          value: latest
+  project: default
+  syncPolicy:
+    # automated:
+    #   prune: true
+    #   selfHeal: false
+    # syncOptions:
+    #   - CreateNamespace=true
+    retry:
+      limit: -1 # number of failed sync attempt retries; unlimited number of attempts if less than 0
+      backoff:
+        duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+        factor: 2 # a factor to multiply the base duration after each failed retry
+        maxDuration: 30m
