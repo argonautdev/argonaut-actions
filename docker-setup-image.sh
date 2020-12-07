@@ -38,6 +38,8 @@ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bas
 # SETUP kustomize
 curl -s "https://raw.githubusercontent.com/\
 kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+chmod a+x kustomize
+mv kustomize ./bin
 
 ####################
 # TODO: Install art
