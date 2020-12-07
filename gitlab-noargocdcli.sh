@@ -25,8 +25,6 @@ ART_WORKSPACE=`pwd`/.art/
 # Prep workspace
 mkdir -p $ART_WORKSPACE
 mkdir -p $ART_WORKSPACE/bin
-export PATH="$ART_WORKSPACE/bin":$PATH
-
 cd $ART_WORKSPACE
 
 # This export is redundant

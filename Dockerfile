@@ -11,5 +11,5 @@ COPY * $ART_IMG_WORKSPACE/
 RUN sh $ART_IMG_WORKSPACE/docker-setup-image.sh
 
 # Code file to execute when the docker container starts up (`entrypoint.sh`)
-ENTRYPOINT ["sleep", "3600"]
+ENTRYPOINT ["/bin/bash"]
 # ENTRYPOINT ["/entrypoint.sh"]
