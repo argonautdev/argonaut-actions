@@ -543,22 +543,22 @@ server:
           args: ["helm repo add art-charts https://raw.githubusercontent.com/argonautdev/charts/main/dist/ &&
                     helm repo update"]
         generate:
-          command: [sh, -c]
-          args: ["helm template $NAME art-charts/service -f $ART_CONFIG_FILE --version $ART_CHART_VERSION --set image=$ART_IMAGE_NAME --set imageTag=$ART_IMAGE_TAG"]
-    #     args: ["helm template appname art-charts/service -f art.yaml --version $ART_CHART_VERSION --set image=$ART_IMAGE_NAME --set imageTag=$ART_IMAGE_TAG > art-helm-output.yaml && kustomize build"]
+          command: ["/bin/sh", "-c"]
+          args: ["helm template $ARGOCD_APP_NAME art-charts/service -n $ARGOCD_APP_NAMESPACE -f $ART_CONFIG_FILE --version $ART_CHART_VERSION --set image=$ART_IMAGE_NAME --set imageTag=$ART_IMAGE_TAG"]
     #######################################
 
     # # Enables google analytics tracking is specified
     # ga.trackingid: "UA-12345-1"
     # # Unless set to 'false' then user ids are hashed before sending to google analytics
     # ga.anonymizeusers: "false"
-    repositories: |
-      - type: helm
-        url: https://raw.githubusercontent.com/argonautdev/charts/main/dist/
-        name: service
-      - type: helm
-        url: https://raw.githubusercontent.com/argonautdev/charts/main/dist/
-        name: managed
+
+    # repositories: |
+    #   - type: helm
+    #     url: https://raw.githubusercontent.com/argonautdev/charts/main/dist/
+    #     name: service
+    #   - type: helm
+    #     url: https://raw.githubusercontent.com/argonautdev/charts/main/dist/
+    #     name: managed
     #   - type: helm
     #     url: https://argoproj.github.io/argo-helm
     #     name: argo
@@ -566,6 +566,7 @@ server:
     #     sshPrivateKeySecret:
     #       name: secret-name
     #       key: sshPrivateKey
+
     # oidc.config: |
     #   name: AzureAD
     #   issuer: https://login.microsoftonline.com/TENANT_ID/v2.0

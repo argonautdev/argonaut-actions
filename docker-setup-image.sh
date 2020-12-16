@@ -26,11 +26,11 @@ curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.
 unzip -q awscliv2.zip
 aws/install --bin-dir ./bin
 
-# SETUP istioctl 1.8.0
-curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.8.0 TARGET_ARCH=x86_64 sh -
-mv istio-1.8.0/bin/istioctl ./bin
-chmod a+x istio-1.8.0/bin/istioctl
-rm -rf istio-1.8.0/
+# SETUP istioctl 1.8.1
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.8.1 TARGET_ARCH=x86_64 sh -
+mv istio-1.8.1/bin/istioctl ./bin
+chmod a+x istio-1.8.1/bin/istioctl
+rm -rf istio-1.8.1/
 
 # SETUP helm
 curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
@@ -42,7 +42,10 @@ chmod a+x kustomize
 mv kustomize ./bin
 
 ####################
-# TODO: Install art
+# Install art (compiled for linux/amd64)
+curl -s "https://github.com/argonautdev/app-actions/releases/download/v0.1.0/art"
+chmod a+x art
+mv art ./bin
 ####################
 
 # Verifying
