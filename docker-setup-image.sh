@@ -8,6 +8,7 @@ mkdir -p $ART_IMG_WORKSPACE/bin
 cd $ART_IMG_WORKSPACE
 
 apk add curl bash zlib-dev binutils openssl
+apk add --no-cache git
 
 # SETUP kubectl
 echo "Setting up kubectl"
@@ -47,6 +48,10 @@ curl -s "https://github.com/argonautdev/app-actions/releases/download/v0.1.0/art
 chmod a+x art
 mv art ./bin
 ####################
+
+# Configure git
+git config --global user.name "[ArgonautDev]"
+git config --global user.email "argonaut@argonaut.dev"
 
 # Verifying
 kubectl version
