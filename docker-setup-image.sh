@@ -44,7 +44,7 @@ mv kustomize ./bin
 
 ####################
 # Install art (compiled for linux/amd64)
-curl -s "https://github.com/argonautdev/app-actions/releases/download/v0.1.0/art"
+curl -sL "https://github.com/argonautdev/app-actions/releases/download/v0.1.0/art" -o art
 chmod a+x art
 mv art ./bin
 ####################
