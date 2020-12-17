@@ -75,7 +75,7 @@ config:
     max_cache_freshness_per_query: "10m"
   schema_config:
     configs:
-      - from: 2020-11-22
+      - from: 2020-10-24
         store: boltdb-shipper
         object_store: s3
         schema: v11
@@ -91,8 +91,17 @@ config:
       cache_ttl: 24h # Can be increased for faster performance over longer query periods, uses more disk space
       shared_store: s3
     aws:
-      s3: s3://us-east-2/tritonhq-dev-loki-logs/test/
-      # region: "us-east-2"
+      bucketnames: tritonhq-loki-logs # {{ clusterName }}-loki-logs
+      endpoint: s3.us-east-2.amazonaws.com # s3.{{ regionName }}.amazonaws.com
+      access_key_id: AKIAJCUOCYMO34QEEHQQ # {{ accessID }}
+      secret_access_key: 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 # {{ accessKey}}
+      insecure: false
+      sse_encryption: false
+      region: "us-east-2" # {{ regionName }}
+      http_config:
+        idle_conn_timeout: 90s
+        response_header_timeout: 0s
+        insecure_skip_verify: false
       s3forcepathstyle: true
   chunk_store_config:
     max_look_back_period: 720h # 30d

@@ -236,7 +236,7 @@ extraContainerVolumes: []
 persistence:
   type: pvc
   enabled: true
-  storageClassName: ebs-gp2-resizable
+  # storageClassName: ebs-gp2-resizable
   accessModes:
     - ReadWriteOnce
   size: 1Gi # Default 10Gi TODO
