@@ -54,7 +54,6 @@ git config --global user.name "[ArgonautDev]"
 git config --global user.email "argonaut@argonaut.dev"
 
 # Verifying
-echo "Versions to verify binaries" # TODO: add art version
 kubectl version
 helm version
 istioctl version
