@@ -53,7 +53,7 @@ livenessProbe:
 
 image:
   repository: grafana/grafana
-  tag: 7.3.3
+  tag: 7.3.6
   sha: ""
   pullPolicy: IfNotPresent
 
@@ -168,7 +168,7 @@ ingress:
   labels: {}
   path: "/grafana/"
   hosts:
-    - "tools.tritonhq.io"
+    - "tools.tritonhq.io" # TODO: Replace with hostname
   ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
   extraPaths: []
   # - path: /*
@@ -388,23 +388,69 @@ plugins:
 ## Configure grafana datasources
 ## ref: http://docs.grafana.org/administration/provisioning/#datasources
 ##
-datasources: {}
-#  datasources.yaml:
-#    apiVersion: 1
-#    datasources:
-#    - name: Prometheus
-#      type: prometheus
-#      url: http://prometheus-prometheus-server
-#      access: proxy
-#      isDefault: true
-#    - name: CloudWatch
-#        type: cloudwatch
-#        access: proxy
-#        uid: cloudwatch
-#        editable: false
-#        jsonData:
-#          authType: credentials
-#          defaultRegion: us-east-1
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-server:80
+        editable: true
+        isDefault: true
+      - name: CloudWatch
+        type: cloudwatch
+        uid: cloudwatch
+        editable: false
+        jsonData:
+          authType: keys
+          defaultRegion: "us-east-2"
+        secureJsonData:
+          accessKey: "{{ .AccessKeyID }}" # TODO
+          secretKey: "{{ .AccessKeyToken }}"
+        # jsonData:
+        #   authType: default
+        #   assumeRoleArn: arn:aws:iam::123456789012:root
+        #   defaultRegion: eu-west-2
+      - name: Jaeger
+        type: jaeger
+        url: http://jaeger-jaeger-query:16686
+        editable: true
+        uid: jaeger
+      - name: Loki
+        type: loki
+        url: http://loki:3100
+        editable: true
+        uid: loki
+        jsonData:
+          maxLines: 2500
+          derivedFields:
+            # Field with internal link pointing to data source in Grafana.
+            # Right now, Grafana supports only Jaeger and Zipkin data sources as link targets.
+            # datasourceUid value can be anything, but it should be unique across all defined data source uids.
+            - datasourceUid: jaeger
+              matcherRegex: "traceID=(\\w+)"
+              name: TraceID
+              # url will be interpreted as query for the datasource
+              url: "$${__value.raw}"
+
+            # Field with external link.
+            - matcherRegex: "traceID=(\\w+)"
+              name: TraceID
+              url: "http://jaeger-jaeger-query:16686/trace/$${__value.raw}"
+      # - name: Postgres
+      #   type: postgres
+      #   url: localhost:5432
+      #   database: grafana
+      #   user: grafana
+      #   secureJsonData:
+      #     password: "Password!"
+      #   jsonData:
+      #     sslmode: "disable" # disable/require/verify-ca/verify-full
+      #     maxOpenConns: 0 # Grafana v5.4+
+      #     maxIdleConns: 2 # Grafana v5.4+
+      #     connMaxLifetime: 14400 # Grafana v5.4+
+      #     postgresVersion: 903 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
+      #     timescaledb: false
 
 ## Configure notifiers
 ## ref: http://docs.grafana.org/administration/provisioning/#alert-notification-channels
@@ -429,18 +475,25 @@ notifiers: {}
 ##
 ## `path` must be /var/lib/grafana/dashboards/<provider_name>
 ##
-dashboardProviders: {}
-#  dashboardproviders.yaml:
-#    apiVersion: 1
-#    providers:
-#    - name: 'default'
-#      orgId: 1
-#      folder: ''
-#      type: file
-#      disableDeletion: false
-#      editable: true
-#      options:
-#        path: /var/lib/grafana/dashboards/default
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - disableDeletion: false
+        folder: istio
+        name: istio
+        options:
+          path: /var/lib/grafana/dashboards/istio
+        orgId: 1
+        type: file
+        editable: true
+      # - disableDeletion: false
+      #   folder: istio
+      #   name: istio-services
+      #   options:
+      #     path: /var/lib/grafana/dashboards/istio-services
+      #   orgId: 1
+      #   type: file
 
 ## Configure grafana dashboard to import
 ## NOTE: To use dashboards you must also enable/configure dashboardProviders
@@ -449,19 +502,33 @@ dashboardProviders: {}
 ## dashboards per provider, use provider name as key.
 ##
 dashboards:
-  {}
-  # default:
-  #   some-dashboard:
-  #     json: |
-  #       $RAW_JSON
-  #   custom-dashboard:
-  #     file: dashboards/custom-dashboard.json
-  #   prometheus-stats:
-  #     gnetId: 2
-  #     revision: 2
-  #     datasource: Prometheus
-  #   local-dashboard:
-  #     url: https://example.com/repository/test.json
+  istio:
+    #   some-dashboard:
+    #     json: |
+    #       $RAW_JSON
+    #   custom-dashboard:
+    #     file: dashboards/custom-dashboard.json
+    prometheus-stats:
+      gnetId: 2
+      revision: 2
+      editable: true
+      datasource: Prometheus
+    dashboard-1:
+      gnetId: 7630
+      # revision: 1
+      editable: true
+      datasource: Prometheus
+    dashboard-2:
+      gnetId: 7636
+      # revision: 1
+      editable: true
+      datasource: Prometheus
+    istio-service-dashboard:
+      url: https://raw.githubusercontent.com/istio/istio/37d5d6e91ccd6bc54a53516e2cf4469d36e3bbf9/manifests/addons/dashboards/istio-service-dashboard.json
+      editable: true
+    istio-mesh-dashboard:
+      editable: true
+      url: https://raw.githubusercontent.com/istio/istio/f8cb8ef4eca1ae3d9a9e81e55dfff1894774c5eb/manifests/addons/dashboards/istio-mesh-dashboard.json
   #   local-dashboard-base64:
   #     url: https://example.com/repository/test-b64.json
   #     b64content: true
@@ -497,7 +564,7 @@ grafana.ini:
   server:
     # The full public facing url you use in browser, used for redirects and emails
     root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
-    domain: "tools.tritonhq.io"
+    domain: "tools.tritonhq.io" # TODO: Replace with "hostname"
     serve_from_sub_path: true
   # root_url: "https://tools.tritonhq.io/grafana/" # Update with hostname - TODO
 # https://grafana.com/docs/grafana/latest/auth/github/#enable-github-in-grafana
