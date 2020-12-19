@@ -48,9 +48,9 @@ tracing:
 config:
   auth_enabled: false
   ingester:
-    chunk_idle_period: 10m
+    chunk_idle_period: 30m
     chunk_block_size: 262144
-    chunk_retain_period: 2m
+    chunk_retain_period: 5m
     max_transfer_retries: 0
     # chunk_encoding: snappy
     lifecycler:
@@ -93,8 +93,8 @@ config:
     aws:
       bucketnames: tritonhq-loki-logs # {{ clusterName }}-loki-logs
       endpoint: s3.us-east-2.amazonaws.com # s3.{{ regionName }}.amazonaws.com
-      access_key_id: AKIAJCUOCYMO34QEEHQQ # {{ accessID }}
-      secret_access_key: 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 # {{ accessKey}}
+      access_key_id: # {{ accessID }}
+      secret_access_key: # {{ accessKey}}
       insecure: false
       sse_encryption: false
       region: "us-east-2" # {{ regionName }}
@@ -156,7 +156,7 @@ persistence:
   enabled: false
   accessModes:
     - ReadWriteOnce
-  size: 10Gi
+  size: 20Gi
   annotations: {}
   # selector:
   #   matchLabels:
