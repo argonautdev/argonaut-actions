@@ -1,7 +1,7 @@
 # Good reference https://github.com/grafana/loki/blob/master/production/helm/loki/values.yaml
 image:
   repository: grafana/loki
-  tag: 2.0.0
+  tag: 2.1.0
   pullPolicy: IfNotPresent
 
   ## Optionally specify an array of imagePullSecrets.
@@ -91,7 +91,7 @@ config:
       cache_ttl: 24h # Can be increased for faster performance over longer query periods, uses more disk space
       shared_store: s3
     aws:
-      bucketnames: tritonhq-loki-logs # {{ clusterName }}-loki-logs
+      bucketnames: tritonhq-dev-loki-logs # {{ clusterName }}-loki-logs
       endpoint: s3.us-east-2.amazonaws.com # s3.{{ regionName }}.amazonaws.com
       access_key_id: # {{ accessID }}
       secret_access_key: # {{ accessKey}}

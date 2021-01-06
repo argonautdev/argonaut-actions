@@ -267,4 +267,60 @@ eksctl delete cluster -f argonaut-configs/_onetimesetup/awsclusterconfig.yaml
 kubectl -n dev exec hasura-0 -it bash
 kubectl -n dev logs hasura-0 argonaut-configs
 kubectl logs -n istio-system $(kubectl get pod -l istio=ingressgateway -n istio-system -o jsonpath={.items..metadata.name})
+kubectl -n tools edit cm fluent-bit-fluent-bit-loki
+
+kubectl patch pod podname -p '{"metadata":{"finalizers": []}}' --type=merge
+```
+
+---
+
+# Flagger
+
+```
+helm repo add flagger https://flagger.app
+# Flagger's canary CRD
+kubectl apply -f https://raw.githubusercontent.com/fluxcd/flagger/main/artifacts/flagger/crd.yaml
+
+# flagger for istio
+helm upgrade -i flagger flagger/flagger \
+--namespace=istio-system \
+--set crd.create=false \
+--set meshProvider=istio \
+--set metricsServer=http://prometheus-server.tools.svc.cluster.local:80
+--set slack.url=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK \
+--set slack.channel=general \
+--set slack.user=flagger
+```
+
+slack.url can be replaced with msteams.url for teams.
+
+# crossplane
+
+```
+# crossplane cli extends kubectl
+curl -sL https://raw.githubusercontent.com/crossplane/crossplane/release-1.0/install.sh | sh
+sudo mv kubectl-crossplane /usr/local/bin
+kubectl create ns crossplane-system
+
+helm repo add crossplane-stable https://charts.crossplane.io/stable
+helm upgrade --install crossplane --namespace crossplane-system crossplane-stable/crossplane
+
+
+# AWS provider
+kubectl crossplane install provider crossplane/provider-aws:v0.16.0
+
+kubectl get provider.pkg --watch
+
+cd tmp
+curl -O https://raw.githubusercontent.com/crossplane/crossplane/release-1.0/docs/snippets/configure/aws/providerconfig.yaml
+curl -O https://raw.githubusercontent.com/crossplane/crossplane/release-1.0/docs/snippets/configure/aws/setup.sh
+chmod a+x setup.sh
+./setup.sh --profile default
+
+# these resources are cluster scoped
+kubectl apply -f providerconfig.yaml
+kubectl apply -f rds.yaml
+
+# TODO: Ensure there is a default VPC
+
 ```

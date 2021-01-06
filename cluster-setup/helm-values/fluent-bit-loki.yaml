@@ -6,6 +6,7 @@ loki:
   servicePath: /api/prom/push
   # user: user
   # password: pass
+
 config:
   port: 2020
   tenantID: '""'
@@ -23,13 +24,13 @@ config:
   labels: '{job="fluent-bit"}'
   labelMap:
     kubernetes:
-      namespace_name: environment_ns
+      namespace_name: namespace
       labels:
         app: app
         release: release
       host: node
       container_name: container
-      pod_name: pod
+      pod_name: instance
     stream: stream
   # parsers: # Allow to define custom parsers. The key here is the same as the one in the [PARSER] section of parsers.conf file.
   #  - Name: json
@@ -50,7 +51,7 @@ deploymentStrategy: RollingUpdate
 
 image:
   repository: grafana/fluent-bit-plugin-loki
-  tag: 1.6.0-amd64
+  tag: 2.1.0-amd64
   pullPolicy: IfNotPresent
   ## Optionally specify an array of imagePullSecrets.
   ## Secrets must be present in the namespace.
