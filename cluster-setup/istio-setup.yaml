@@ -19,5 +19,7 @@ spec:
     defaultConfig:
       tracing:
         sampling: "100" # TODO: Customize
+        zipkin:
+          address: tracing-jaeger-query:16686
 ---
 

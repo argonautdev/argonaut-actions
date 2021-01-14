@@ -40,6 +40,6 @@ cr:
         url: "http://prometheus-server.tools.svc.cluster.local:80"
       tracing:
         enabled: true
-        in_cluster_url: "http://jaeger-jaeger-query.tools.svc.cluster.local:16686"
+        in_cluster_url: "http://tracing-jaeger-query.tools.svc.cluster.local:16686"
         url: "https://tools.tritonhq.io/jaeger"
         whitelist_istio_system: ["istio-system.istio-ingressgateway"]

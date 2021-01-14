@@ -131,12 +131,12 @@ spec:
         - uri:
             exact: "/jaeger"
       rewrite:
-        uri: "/jaeger/"
+        uri: "/"
       route:
         - destination:
             port:
               number: 16686
-            host: jaeger-jaeger-query.tools.svc.cluster.local
+            host: tracing-jaeger-query.tools.svc.cluster.local
 ---
 # apiVersion: networking.istio.io/v1alpha3
 # kind: VirtualService

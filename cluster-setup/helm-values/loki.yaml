@@ -43,7 +43,7 @@ annotations: {}
 
 # enable tracing for debug, need install jaeger and specify right jaeger_agent_host
 tracing:
-  jaegerAgentHost:
+  jaegerAgentHost: "tracing-jaeger-agent.tools.svc.cluster.local"
 
 config:
   auth_enabled: false
@@ -277,7 +277,19 @@ extraPorts: []
 #   targetPort: http
 
 # Extra env variables to pass to the loki container
-env: []
+env:
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        key: AWS_ACCESS_KEY_ID
+        name: loki_s3
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        key: AWS_SECRET_ACCESS_KEY
+        name: loki_s3
+  - name: AWS_SDK_LOAD_CONFIG
+    value: "1"
 
 # Specify Loki Alerting rules based on this documentation: https://grafana.com/docs/loki/latest/alerting/
 # When specified, you also need to add a ruler config section above. An example is shown in the alerting docs.

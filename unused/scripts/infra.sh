@@ -30,11 +30,11 @@ kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.ku
 
 # Install ISTIO and the observability stack
 curl -L https://istio.io/downloadIstio | sh -
-mv istio-1.8.0/bin/istioctl .
+mv istio-1.8.1/bin/istioctl .
 chmod a+x istioctl
 ./istioctl install --set profile=default -y -f $SETUP_CONFIGS/istio-setup.yaml
 
-rm -rf istio-1.8.0/
+rm -rf istio-1.8.1/
 rm istioctl
 
 # HELM Charts - repo add

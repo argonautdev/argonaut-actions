@@ -397,23 +397,23 @@ datasources:
         url: http://prometheus-server:80
         editable: true
         isDefault: true
-      - name: CloudWatch
-        type: cloudwatch
-        uid: cloudwatch
-        editable: false
-        jsonData:
-          authType: keys
-          defaultRegion: "us-east-2"
-        secureJsonData:
-          accessKey: "{{ .AccessKeyID }}" # TODO
-          secretKey: "{{ .AccessKeyToken }}"
-        # jsonData:
-        #   authType: default
-        #   assumeRoleArn: arn:aws:iam::123456789012:root
-        #   defaultRegion: eu-west-2
+      # - name: CloudWatch
+      #   type: cloudwatch
+      #   uid: cloudwatch
+      #   editable: false
+      #   jsonData:
+      #     authType: keys
+      #     defaultRegion: "us-east-2"
+      #   secureJsonData:
+      #     accessKey: "{{ .AWS_ACCESS_KEY_ID }}" # TODO
+      #     secretKey: "{{ .AWS_SECRET_ACCESS_KEY }}"
+      #   # jsonData:
+      #   #   authType: default
+      #   #   assumeRoleArn: arn:aws:iam::123456789012:root
+      #   #   defaultRegion: eu-west-2
       - name: Jaeger
         type: jaeger
-        url: http://jaeger-jaeger-query:16686
+        url: http://tracing-jaeger-query:16686
         editable: true
         uid: jaeger
       - name: Loki
@@ -435,8 +435,8 @@ datasources:
 
             # Field with external link.
             - matcherRegex: "traceID=(\\w+)"
-              name: TraceID
-              url: "http://jaeger-jaeger-query:16686/trace/$${__value.raw}"
+              name: "Open in Jaeger"
+              url: "http://tracing-jaeger-query:16686/trace/$${__value.raw}"
       # - name: Postgres
       #   type: postgres
       #   url: localhost:5432
