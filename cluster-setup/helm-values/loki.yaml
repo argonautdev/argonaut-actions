@@ -93,8 +93,8 @@ config:
     aws:
       bucketnames: tritonhq-dev-loki-logs # {{ clusterName }}-loki-logs
       endpoint: s3.us-east-2.amazonaws.com # s3.{{ regionName }}.amazonaws.com
-      access_key_id: # {{ accessID }}
-      secret_access_key: # {{ accessKey}}
+      access_key_id: # accessID
+      secret_access_key: # accessKey
       insecure: false
       sse_encryption: false
       region: "us-east-2" # {{ regionName }}
@@ -282,12 +282,12 @@ env:
     valueFrom:
       secretKeyRef:
         key: AWS_ACCESS_KEY_ID
-        name: loki_s3
+        name: loki-s3
   - name: AWS_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
         key: AWS_SECRET_ACCESS_KEY
-        name: loki_s3
+        name: loki-s3
   - name: AWS_SDK_LOAD_CONFIG
     value: "1"
 
