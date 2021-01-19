@@ -127,8 +127,7 @@ config:
 
 ## Additional Loki container arguments, e.g. log level (debug, info, warn, error)
 extraArgs:
-  {}
-  # log.level: debug
+  log.level: warn
 
 livenessProbe:
   httpGet:
