@@ -17,8 +17,6 @@ jobs:
     steps:
       - name: Fetch repo
         uses: actions/checkout@v2
-      - name: Set tag in env
-        run: export RELEASE_VERSION=${GITHUB_REF#refs/*/}"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -37,4 +35,4 @@ jobs:
           file: ./Dockerfile
           #   platforms: linux/amd64,linux/arm64,linux/386
           push: true
-          tags: ghcr.io/argonautdev/ci:latest , ghcr.io/argonautdev/ci:$RELEASE_VERSION
+          tags: ghcr.io/argonautdev/ci:latest , ghcr.io/argonautdev/ci:v0.1.0
