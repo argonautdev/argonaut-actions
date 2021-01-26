@@ -1,4 +1,4 @@
-# Deps
+# Dependencies
 
 brew install jq
 brew install argocd
