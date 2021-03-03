@@ -1,5 +1,5 @@
 # Container image that runs your code
-FROM alpine
+FROM golang:1.16-alpine
 
 ENV ART_IMG_WORKSPACE=/art-img
 ENV PATH=$ART_IMG_WORKSPACE/bin:$PATH
