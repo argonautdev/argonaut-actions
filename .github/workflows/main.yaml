@@ -35,4 +35,4 @@ jobs:
           file: ./Dockerfile
           #   platforms: linux/amd64,linux/arm64,linux/386
           push: true
-          tags: ghcr.io/argonautdev/ci:latest , ghcr.io/argonautdev/ci:v0.1.0
+          tags: ghcr.io/argonautdev/ci:latest , ghcr.io/argonautdev/ci:${GITHUB_REF#refs/tags/}
